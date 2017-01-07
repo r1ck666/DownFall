@@ -14,7 +14,7 @@ public class Stage  {
 
 	uint[,,] blocks;
 
-	uint[,,] GetBlocks() {
+	public uint[,,] GetBlocks() {
 		return blocks;
 	}
 

@@ -5,7 +5,7 @@ using System.Linq;
 
 //できればエラーの例外処理ができるようになりたいな。。。
 
-public class MapManager : SingletonMonoBehaviour<MapManager> {
+public class StageManager : SingletonMonoBehaviour<StageManager> {
 
 	//　現在選択中のステージ
 	Stage stage;
@@ -20,6 +20,14 @@ public class MapManager : SingletonMonoBehaviour<MapManager> {
 		string stageData = ResourcesLoad ("TestMap");
 		stage = MapLoad(stageData);
 		MapCreate(stage);
+	}
+
+	public Stage GetStage() {
+		return stage;
+	}
+
+	public GameObject[,,] GetBlocksObject() {
+		return blocksObject;
 	}
 
 	string ResourcesLoad (string mapName)
