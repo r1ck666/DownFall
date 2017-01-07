@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 
-
 	/// <summary>
     /// This client's version number. Users are separated from each other by gameversion (which allows you to make breaking changes).
     /// </summary>
@@ -18,8 +17,10 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// <summary>
 	/// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
 	/// </summary>
-	[Tooltip("The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created")]
+	[Tooltip("ルームに入れる最大人数")]
 	public byte MaxPlayersPerRoom = 4;
+
+
 
 	protected override void Awake()
 	{
