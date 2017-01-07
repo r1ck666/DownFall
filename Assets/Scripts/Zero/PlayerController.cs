@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+    DirectionState directionState;
+    AnimState animState;
+
     [SerializeField]
     private float needTapDistance = 2f;
     [SerializeField]
     private float moveSpeed = 2f;
 
+    //タップポジションの保管
     private Vector3 touchBeginePos;
     private Vector3 touchNowPos;
 
@@ -21,6 +25,8 @@ public class PlayerController : MonoBehaviour {
 	void Start () {
         anim = GetComponent<Animator>();
         isDirectionMode = false;
+        animState = AnimState.NONE;
+        directionState = DirectionState.NONE;
 	}
 	
 	// Update is called once per frame
@@ -68,6 +74,7 @@ public class PlayerController : MonoBehaviour {
         float nowAngle = rad * 180 / Mathf.PI - 90;
 
         transform.eulerAngles = new Vector3(0,-nowAngle,0);
+        //Debug.Log(transform.eulerAngles);
     }
 
     /// <summary>
@@ -77,4 +84,71 @@ public class PlayerController : MonoBehaviour {
     {
         isDirectionMode = isPush;
     }
+
+    /// <summary>
+    ///　アクションボタンが押されたとき
+    ///　前方向のブロックを探索して壊す、または直す
+    /// </summary>
+    public void OnActionButton()
+    {
+        uint x = (uint)transform.position.x;
+        uint z = (uint)transform.position.y;
+        
+        switch (directionState)
+        {
+            case DirectionState.RIGHT:
+                x++;
+                break;
+            case DirectionState.LEFT:
+                x--;
+                break;
+            case DirectionState.FRONT:
+                z++;
+                break;
+            case DirectionState.BACK:
+                z--;
+                break;
+        }
+
+        if (animState == AnimState.NONE)
+        {
+            //ここでy,zをおくる
+            //NormalGameManager.Instance.ActionJudge(x,z);
+        }
+    }
+
+    public void ActionAnimation(AnimState aState)
+    {
+        animState = aState;
+    }
+
+    DirectionState GetDirection(float angleY)
+    {
+        if (45f <= angleY && angleY < 135f)
+            return DirectionState.RIGHT;
+        else if (135f <= angleY && angleY < 225f)
+            return DirectionState.BACK;
+        else if (225f <= angleY && angleY < 315f)
+            return DirectionState.LEFT;
+        else
+            return DirectionState.FRONT;
+    }
+
+}
+
+
+public enum DirectionState
+{
+    RIGHT = -1,
+    LEFT = 1,
+    FRONT = 2,
+    BACK = 3,
+    NONE = 4
+}
+
+public enum AnimState
+{
+    BREAK,
+    REPAIR,
+    NONE
 }

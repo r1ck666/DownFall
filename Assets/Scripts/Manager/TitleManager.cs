@@ -20,6 +20,9 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	[Tooltip("ルームに入れる最大人数")]
 	public byte MaxPlayersPerRoom = 4;
 
+	[Tooltip("通信中かどうかを表示するラベル")]
+	public GameObject progressLabel;
+
 
 
 	protected override void Awake()
@@ -41,6 +44,10 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 
 	}
 
+	void Start() {
+		progressLabel.SetActive(false);
+	}
+
     /// <summary>
     /// Start the connection process.
     /// - If already connected, we attempt joining a random room
@@ -48,7 +55,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     /// </summary>
     public void Connect()
     {
-
+		progressLabel.SetActive(true);
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected)
         {
@@ -70,6 +77,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 
 	public override void OnDisconnectedFromPhoton()
 	{
+		progressLabel.SetActive(false);
     	DebugLogger.Log("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
 	}
 

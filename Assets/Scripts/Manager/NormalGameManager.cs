@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager> {
 
@@ -24,8 +25,6 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	Stage stage;
 	uint[,,] blocks;
 	GameObject[,,] blocksObject;
-
-
 
 	protected override void Awake()
 	{
