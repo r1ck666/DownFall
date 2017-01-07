@@ -74,7 +74,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         if (PhotonNetwork.connected)
         {
             if (!PhotonNetwork.JoinRoom("Waiting_Room")) {
-				errorButton.SetActive(true);	//エラーボタンの表示
+				PhotonNetwork.CreateRoom("Waiting_Room");
 			}
         }else{
             // #Critical, we must first and foremost connect to Photon Online Server.
