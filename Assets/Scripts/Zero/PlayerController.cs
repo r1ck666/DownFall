@@ -4,11 +4,22 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+    enum DirectionState
+    {
+        RIGHT = 0,
+        LEFT = 1,
+        FRONT = 2,
+        BACK = 3,
+    }
+
+    DirectionState directionState;
+
     [SerializeField]
     private float needTapDistance = 2f;
     [SerializeField]
     private float moveSpeed = 2f;
 
+    //タップポジションの保管
     private Vector3 touchBeginePos;
     private Vector3 touchNowPos;
 
@@ -68,6 +79,7 @@ public class PlayerController : MonoBehaviour {
         float nowAngle = rad * 180 / Mathf.PI - 90;
 
         transform.eulerAngles = new Vector3(0,-nowAngle,0);
+        //Debug.Log(transform.eulerAngles);
     }
 
     /// <summary>
@@ -77,4 +89,26 @@ public class PlayerController : MonoBehaviour {
     {
         isDirectionMode = isPush;
     }
+
+    /// <summary>
+    ///　アクションボタンが押されたとき
+    ///　前方向のブロックを探索して壊す、または直す
+    /// </summary>
+    public void OnActionButton()
+    {
+        return;
+    }
+
+    DirectionState GetDirection(float angleY)
+    {
+        if (45f <= angleY && angleY < 135f)
+            return DirectionState.RIGHT;
+        else if (135f <= angleY && angleY < 225f)
+            return DirectionState.BACK;
+        else if (225f <= angleY && angleY < 315f)
+            return DirectionState.LEFT;
+        else
+            return DirectionState.FRONT;
+    }
+
 }
