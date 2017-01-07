@@ -103,7 +103,7 @@ public class PlayerController : MonoBehaviour {
         */
         anim.SetBool("Run",true);
         //transform.position += transform.forward * Time.deltaTime * moveSpeed;
-        rigidbody.MovePosition(transform.position + transform.forward * Time.deltaTime);
+        rigidbody.MovePosition(transform.position + transform.forward * Time.deltaTime * moveSpeed);
     }
 
     /// <summary>
