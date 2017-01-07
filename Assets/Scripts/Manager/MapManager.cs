@@ -1,45 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class MapManager : SingletonMonoBehaviour<MapManager> {
 
-	// Use this for initialization
-	void Start () {
 
-	}
-
-	// Update is called once per frame
-	void Update () {
-
-	}
-
-	//csvファイル（txtファイル)から読み込み
-	void MapLoad()
-	{
-		//mapの大きさを調べる
-		//charをそのままSplitの引数に指定するとエラーが出る...（ネットでは別の書式と認識されるからっぽい？）
-		char[] separator = new char[]{'\n'};
-		string[] lines = textMap.text.Split(separator, System.StringSplitOptions.RemoveEmptyEntries);
-		string[] line = lines[0].Split(',');
-		row = lines.Length;
-		column = line.Length;
-		map = new string[row,column];
-		for (i=0; i<row; i++){
-			line = lines[i].Split(',');
-			for(j=0; j<column; j++){
-				map[i,j] = line[j];
-			}
-		}
-	}
-
+/*
 	void MapLoadLinq (string stageData)
 	{
+		// 配列に格納
 		var lines = stageData.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries)
-			.Where(line => !(line.IndexOf ("abc") == -1))
+			.Where(line => !(line.IndexOf ("#") == -1)) // コメント行を取り除く
 			.ToArray();
-	}
 
+		// ステージ名
+		stageName = lines[0];
+
+		// ステージサイズの読み込み
+		var stageSize = lines[2].Split(' ').Select(size => uint.Parse(size)).ToArray();
+	}
+	*/
+
+/*
 	public Stage(string stageData) {
 		var lines = stageData.Split(new[] { '\n', '\r' }, System.StringSplitOptions.RemoveEmptyEntries)
 			.Where(line => !line.StartsWith("#"))	// コメント行を取り除く
@@ -75,4 +58,5 @@ public class MapManager : SingletonMonoBehaviour<MapManager> {
 			}
 		}
 	}
+	*/
 }
