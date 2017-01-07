@@ -4,15 +4,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-    enum DirectionState
-    {
-        RIGHT = 0,
-        LEFT = 1,
-        FRONT = 2,
-        BACK = 3,
-    }
-
     DirectionState directionState;
+    AnimState animState;
 
     [SerializeField]
     private float needTapDistance = 2f;
@@ -32,6 +25,8 @@ public class PlayerController : MonoBehaviour {
 	void Start () {
         anim = GetComponent<Animator>();
         isDirectionMode = false;
+        animState = AnimState.NONE;
+        directionState = DirectionState.NONE;
 	}
 	
 	// Update is called once per frame
@@ -96,7 +91,35 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionButton()
     {
-        return;
+        uint x = (uint)transform.position.x;
+        uint z = (uint)transform.position.y;
+        
+        switch (directionState)
+        {
+            case DirectionState.RIGHT:
+                x++;
+                break;
+            case DirectionState.LEFT:
+                x--;
+                break;
+            case DirectionState.FRONT:
+                z++;
+                break;
+            case DirectionState.BACK:
+                z--;
+                break;
+        }
+
+        if (animState == AnimState.NONE)
+        {
+            //ここでy,zをおくる
+            //NormalGameManager.Instance.ActionJudge(x,z);
+        }
+    }
+
+    public void ActionAnimation(AnimState aState)
+    {
+        animState = aState;
     }
 
     DirectionState GetDirection(float angleY)
@@ -111,4 +134,21 @@ public class PlayerController : MonoBehaviour {
             return DirectionState.FRONT;
     }
 
+}
+
+
+public enum DirectionState
+{
+    RIGHT = -1,
+    LEFT = 1,
+    FRONT = 2,
+    BACK = 3,
+    NONE = 4
+}
+
+public enum AnimState
+{
+    BREAK,
+    REPAIR,
+    NONE
 }
