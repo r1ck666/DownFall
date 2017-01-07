@@ -18,6 +18,11 @@ public class Stage  {
 		return blocks;
 	}
 
+	public uint this[uint x, uint y, uint z]
+    {
+        get { return this.blocks[x, y, z]; }
+    }
+
 	public Stage (string stageName, uint x, uint y, uint z, uint[,,] blocks) {
 		this.stageName = stageName;
 		this.x = x;
