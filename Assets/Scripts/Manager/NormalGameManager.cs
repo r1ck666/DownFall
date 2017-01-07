@@ -6,16 +6,25 @@ using System.Linq;
 public class NormalGameManager : SingletonMonoBehaviour<NormalGameManager> {
 
 
-	[SerializeField] string stageData;
+	//================================
+	// GameRole関連
+	//================================
+	
+	// 制限時間
+	[SerializeField] float timeLimit = 300f;
+	// 岩ブロック最大数
+	[SerializeField] uint rockNum = 10;
+
+	//================================
+	// Stage関連
+	//================================
 	Stage stage;
 	List<GameObject> blockList;
-
-	//制限時間
-	[SerializeField] float timeLimit;
+	//================================
 
 	void Awake() {
 		base.Awake();
-		ResourcesLoad ("TestMap");
+		string stageData = ResourcesLoad ("TestMap");
 		stage = MapLoad(stageData);
 		MapCreate(stage);
 	}
@@ -24,7 +33,7 @@ public class NormalGameManager : SingletonMonoBehaviour<NormalGameManager> {
 	// Map関連
 	//===================================
 
-	void ResourcesLoad (string mapName)
+	string ResourcesLoad (string mapName)
 	{
 		// BlockPrefabの読み込み
 		BlockLoad();
@@ -71,11 +80,17 @@ public class NormalGameManager : SingletonMonoBehaviour<NormalGameManager> {
 		}
 		stageData = null;	//メモリ解放
 
-		stage = new Stage(stageName, x, y, z, blocks);
+		return new Stage(stageName, x, y, z, blocks);
 	}
 
 	void MapCreate( Stage stage )
 	{
+		for (uint j = 0; j < y; j++) {
+			for (uint k = 0; k < z; k++) {
+				for (uint i = 0; i < x; i++) {
 
+				}
+			}
+		}
 	}
 }
