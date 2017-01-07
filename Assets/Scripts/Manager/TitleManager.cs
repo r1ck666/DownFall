@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 
 	/// <summary>
     /// This client's version number. Users are separated from each other by gameversion (which allows you to make breaking changes).
     /// </summary>
-    string _gameVersion = "1";
+    string _gameVersion = "v1.0";
 
 	/// <summary>
 	/// The PUN loglevel.
@@ -17,13 +18,25 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// <summary>
 	/// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
 	/// </summary>
-	[Tooltip("ルームに入れる最大人数")]
-	public byte MaxPlayersPerRoom = 4;
+	[Tooltip("ルームに入れる最大人数(待機用のルーム)")]
+	public byte MaxPlayersPerRoom = 8;
 
-	[Tooltip("通信中かどうかを表示するラベル")]
-	public GameObject progressLabel;
+	/// <summary>
+	/// Connectingを表示するラベル
+	/// </summary>
+	[SerializeField] GameObject progressLabel;
 
+	/// <summary>
+	/// GameVesionを表示するラベル
+	/// </summary>
+	[SerializeField] Text gameVersionLabel;
 
+	/// <summary>
+	/// エラーログを表示するラベル
+	/// </summary>
+	[SerializeField] Text ErrorLabrl;
+
+	[SerializeField] GameObject errorButton;
 
 	protected override void Awake()
 	{
@@ -46,6 +59,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 
 	void Start() {
 		progressLabel.SetActive(false);
+		gameVersionLabel.text = "GameVersion: " + _gameVersion;
 	}
 
     /// <summary>
@@ -59,8 +73,9 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected)
         {
-            // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnPhotonRandomJoinFailed() and we'll create one.
-            PhotonNetwork.JoinRandomRoom();
+            if (!PhotonNetwork.JoinRoom("Waiting_Room")) {
+				errorButton.SetActive(true);
+			}
         }else{
             // #Critical, we must first and foremost connect to Photon Online Server.
             PhotonNetwork.ConnectUsingSettings(_gameVersion);
@@ -78,7 +93,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnDisconnectedFromPhoton()
 	{
 		progressLabel.SetActive(false);
-    	DebugLogger.Log("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
+    	Debug.LogWarning("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
 	}
 
 	public override void OnPhotonRandomJoinFailed (object[] codeAndMsg)
@@ -92,5 +107,13 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnJoinedRoom()
 	{
     	DebugLogger.Log("TitleManger: OnJoinedRoom() called by PUN. Now this client is in a room.");
+		if (PhotonNetwork.room.playerCount == 1)
+    	{
+        	Debug.Log("We load the 'Room_for_2' ");
+
+        	// #Critical
+        	// Load the Room Level.
+        	PhotonNetwork.LoadLevel("Room_for_2");
+    	}
 	}
 }

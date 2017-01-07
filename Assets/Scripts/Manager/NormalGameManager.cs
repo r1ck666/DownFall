@@ -22,9 +22,18 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	//================================
 	// StageManager関連
 	//================================
+
 	Stage stage;
 	uint[,,] blocks;
 	GameObject[,,] blocksObject;
+
+	//================================
+	// UI関連
+	//================================
+
+	public GameObject button;
+
+	//================================
 
 	protected override void Awake()
 	{
@@ -40,11 +49,46 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	}
 
-	/*
 	public AnimState ActionJudge (uint x, uint z) {
 		//y座標が1の時にブロックがなければ、y座標0を調べる
-		return AnimState.Break;
+		return AnimState.BREAK;
 	}
-	*/
+
+
+	//================================
+	// Photon関連
+	//================================
+
+	public override  void OnLeftRoom()
+	{
+		SceneManager.LoadScene(0);
+	}
+
+	public void LeaveRoom()
+	{
+		PhotonNetwork.LeaveRoom();
+	}
+
+	public override void OnPhotonPlayerConnected( PhotonPlayer other  )
+	{
+    	Debug.Log( "OnPhotonPlayerConnected() " + other.name ); // not seen if you're the player connecting
+
+    	if ( PhotonNetwork.isMasterClient )
+    	{
+        	Debug.Log( "OnPhotonPlayerConnected isMasterClient " + PhotonNetwork.isMasterClient ); // called before OnPhotonPlayerDisconnected
+
+    	}
+	}
+
+	public override void OnPhotonPlayerDisconnected( PhotonPlayer other  )
+	{
+    	Debug.Log( "OnPhotonPlayerDisconnected() " + other.name ); // seen when other disconnects
+
+    	if ( PhotonNetwork.isMasterClient )
+    	{
+        	Debug.Log( "OnPhotonPlayerConnected isMasterClient " + PhotonNetwork.isMasterClient ); // called before OnPhotonPlayerDisconnected
+
+    	}
+	}
 
 }
