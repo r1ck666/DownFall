@@ -12,6 +12,9 @@ public class PlayerController : MonoBehaviour {
     [SerializeField]
     private float moveSpeed = 2f;
 
+    [SerializeField]
+    private GameObject maker;
+
     //タップポジションの保管
     private Vector3 touchBeginePos;
     private Vector3 touchNowPos;
@@ -26,7 +29,7 @@ public class PlayerController : MonoBehaviour {
         anim = GetComponent<Animator>();
         isDirectionMode = false;
         animState = AnimState.NONE;
-        directionState = DirectionState.NONE;
+        directionState = GetDirection(transform.eulerAngles.y);
 	}
 	
 	// Update is called once per frame
@@ -53,15 +56,45 @@ public class PlayerController : MonoBehaviour {
         {
             anim.SetBool("Run",false);
         }
+        Maker();
 	}
-    
+
+    /// <summary>
+    /// マーカー目の前に出す
+    /// </summary>
+    void Maker()
+    {
+        uint x = (uint)Mathf.RoundToInt(transform.position.x);
+        uint z = (uint)Mathf.RoundToInt(transform.position.z);
+        uint y = (uint)Mathf.RoundToInt(transform.position.y);
+
+        switch (directionState)
+        {
+            case DirectionState.RIGHT:
+                x++;
+                break;
+            case DirectionState.LEFT:
+                x--;
+                break;
+            case DirectionState.FRONT:
+                z++;
+                break;
+            case DirectionState.BACK:
+                z--;
+                break;
+        }
+
+        maker.transform.position = new Vector3(x,y-0.4f,z);
+
+    }
+
     /// <summary>
     /// 前に移動
     /// </summary>
     void Move()
     {
         anim.SetBool("Run",true);
-        transform.position += transform.forward * Time.deltaTime;
+        transform.position += transform.forward * Time.deltaTime * moveSpeed;
     }
 
     /// <summary>
@@ -74,6 +107,7 @@ public class PlayerController : MonoBehaviour {
         float nowAngle = rad * 180 / Mathf.PI - 90;
 
         transform.eulerAngles = new Vector3(0,-nowAngle,0);
+        directionState = GetDirection(transform.eulerAngles.y);
         //Debug.Log(transform.eulerAngles);
     }
 
@@ -91,8 +125,8 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionButton()
     {
-        uint x = (uint)transform.position.x;
-        uint z = (uint)transform.position.y;
+        uint x = (uint)Mathf.RoundToInt(transform.position.x);
+        uint z = (uint)Mathf.RoundToInt(transform.position.y);
         
         switch (directionState)
         {
