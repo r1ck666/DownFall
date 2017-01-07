@@ -21,7 +21,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	[Tooltip("The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created")]
 	public byte MaxPlayersPerRoom = 4;
 
-	void Awake()
+	protected override void Awake()
 	{
 		base.Awake();
 		// Photon
@@ -39,15 +39,6 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         PhotonNetwork.automaticallySyncScene = true;
 
 	}
-
-	/// <summary>
-    /// MonoBehaviour method called on GameObject by Unity during initialization phase.
-    /// </summary>
-    void Start()
-    {
-        Connect();
-    }
-
 
     /// <summary>
     /// Start the connection process.
@@ -67,4 +58,30 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
             PhotonNetwork.ConnectUsingSettings(_gameVersion);
         }
     }
+
+	public override void OnConnectedToMaster()
+	{
+    	DebugLogger.Log("TitleManager: OnConnectedToMaster() was called by PUN");
+		// #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnPhotonRandomJoinFailed()
+		PhotonNetwork.JoinRandomRoom();
+
+	}
+
+	public override void OnDisconnectedFromPhoton()
+	{
+    	DebugLogger.Log("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
+	}
+
+	public override void OnPhotonRandomJoinFailed (object[] codeAndMsg)
+	{
+    	DebugLogger.Log("TitleManger:OnPhotonRandomJoinFailed() was called by PUN. No random room available, so we create one.\nCalling: PhotonNetwork.CreateRoom(null, new RoomOptions() {maxPlayers = 4}, null);");
+
+    	// #Critical: we failed to join a random room, maybe none exists or they are all full. No worries, we create a new room.
+    	PhotonNetwork.CreateRoom(null, new RoomOptions() { maxPlayers = MaxPlayersPerRoom }, null);
+	}
+
+	public override void OnJoinedRoom()
+	{
+    	DebugLogger.Log("TitleManger: OnJoinedRoom() called by PUN. Now this client is in a room.");
+	}
 }

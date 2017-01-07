@@ -4,7 +4,7 @@ using UnityEngine;
 /// シングルトン用ベースクラス
 /// </summary>
 /// <typeparam name="T">シングルトン対象クラス</typeparam>
-public class SingletonPhotonMonoBehaviour<T> : Photon.MonoBehaviour where T : MonoBehaviour {
+public class SingletonPhotonMonoBehaviour<T> : Photon.PunBehaviour where T : MonoBehaviour {
 
 	protected static T instance;
 	public static T Instance {

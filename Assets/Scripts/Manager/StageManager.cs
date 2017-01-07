@@ -15,7 +15,7 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 	List<GameObject> blockList;
 	GameObject[,,] blocksObject;
 
-	void Awake() {
+	protected override void Awake() {
 		base.Awake();
 		string stageData = ResourcesLoad ("TestMap");
 		stage = MapLoad(stageData);

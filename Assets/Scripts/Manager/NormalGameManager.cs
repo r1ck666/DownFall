@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager> {
 
@@ -27,23 +26,10 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	GameObject[,,] blocksObject;
 
 
-	void Awake()
+
+	protected override void Awake()
 	{
 		base.Awake();
-		// Photon
-
-		// #NotImportant
-        // Force Full LogLevel
-        PhotonNetwork.logLevel = PhotonLogLevel.Full;
-
-		// #Critical
-        // we don't join the lobby. There is no need to join a lobby to get the list of rooms.
-        PhotonNetwork.autoJoinLobby = false;
-
-		// #Critical
-        // this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
-        PhotonNetwork.automaticallySyncScene = true;
-
 	}
 
 	void Start()
@@ -53,50 +39,13 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		blocks = stage.GetBlocks();
 		blocksObject = StageManager.Instance.GetBlocksObject();
 
-		// Photonに接続
-		Connect();
-
 	}
 
-	//==================================
-	// Photon関連のメソッド
-	//==================================
-
-	public void Connect()
-	{
-		if (PhotonNetwork.connected)
-		{
-			PhotonNetwork.JoinRandomRoom();
-		} else {
-			PhotonNetwork.ConnectUsingSettings(_gameVersion);
-		}
+	/*
+	public AnimState ActionJudge (uint x, uint z) {
+		//y座標が1の時にブロックがなければ、y座標0を調べる
+		return AnimState.Break;
 	}
-
-	// Lobbyへ接続成功
-	void OnJoinedLobby() {
-		Debug.Log("OnJoinedLobby");
-		// 現在あるRoomにランダムで接続
-		PhotonNetwork.JoinRandomRoom();
-	}
-
-	//ランダムでRoomに接続失敗
-	void OnPhotonRandomJoinFailed() {
-		Debug.Log("OnPhotonRandomJoinFailed");
-		// Room作成
-		PhotonNetwork.CreateRoom(null);
-	}
-
-	// Room作成成功
-	void OnCreatedRoom() {
-		Debug.Log("OnCreatedRoom");
-		// 自動的にOnJoinedRoom呼び出し
-	}
-
-	// Room入室成功時
-	void OnJoinedRoom() {
-		Debug.Log("OnJoinedRoom");
-	}
-
-
+	*/
 
 }
