@@ -74,7 +74,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         if (PhotonNetwork.connected)
         {
             if (!PhotonNetwork.JoinRoom("Waiting_Room")) {
-				PhotonNetwork.CreateRoom("Waiting_Room");
+				PhotonNetwork.CreateRoom("Waiting_Room", new RoomOptions() { maxPlayers = MaxPlayersPerRoom }, null);
 			}
         }else{
             // #Critical, we must first and foremost connect to Photon Online Server.
@@ -96,12 +96,9 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     	Debug.LogWarning("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
 	}
 
-	public override void OnPhotonRandomJoinFailed (object[] codeAndMsg)
+	public  void OnPhotonCreateGameFailed()
 	{
-    	DebugLogger.Log("TitleManger:OnPhotonRandomJoinFailed() was called by PUN. No random room available, so we create one.\nCalling: PhotonNetwork.CreateRoom(null, new RoomOptions() {maxPlayers = 4}, null);");
 
-    	// #Critical: we failed to join a random room, maybe none exists or they are all full. No worries, we create a new room.
-    	PhotonNetwork.CreateRoom(null, new RoomOptions() { maxPlayers = MaxPlayersPerRoom }, null);
 	}
 
 	public override void OnJoinedRoom()
