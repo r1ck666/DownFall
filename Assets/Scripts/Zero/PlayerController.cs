@@ -14,26 +14,29 @@ public class PlayerController : MonoBehaviour {
 
     [SerializeField]
     private GameObject maker;
-
+    
     //タップポジションの保管
     private Vector3 touchBeginePos;
-    private Vector3 touchNowPos;
+    private Vector3 touchDistancePos;
 
     private Animator anim;
 
     //方向転換
     private bool isDirectionMode;
 
+    private Rigidbody rigidbody;
+
 	// Use this for initialization
 	void Start () {
         anim = GetComponent<Animator>();
+        rigidbody = GetComponent<Rigidbody>();
         isDirectionMode = false;
         animState = AnimState.NONE;
         directionState = GetDirection(transform.eulerAngles.y);
 	}
-	
+
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 
         TouchInfo info = AppUtil.GetTouch();
 
@@ -43,8 +46,8 @@ public class PlayerController : MonoBehaviour {
         }
         else if (info == TouchInfo.Moved)
         {
-            touchNowPos = AppUtil.GetTouchPosition() - touchBeginePos;
-            if (touchNowPos.magnitude > needTapDistance)
+            touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
+            if (touchDistancePos.magnitude > needTapDistance)
             {
                 Debug.Log(isDirectionMode);
                 SetDirection();
@@ -93,8 +96,14 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     void Move()
     {
+        /*
+        Vector3 velocity = Vector3.zero;
+        velocity = new Vector3(touchDistancePos.x,0,touchDistancePos.y);
+        velocity *= moveSpeed;
+        */
         anim.SetBool("Run",true);
-        transform.position += transform.forward * Time.deltaTime * moveSpeed;
+        //transform.position += transform.forward * Time.deltaTime * moveSpeed;
+        rigidbody.MovePosition(transform.position + transform.forward * Time.deltaTime);
     }
 
     /// <summary>
@@ -102,7 +111,7 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     void SetDirection()
     {
-        Vector3 distance = touchNowPos;
+        Vector3 distance = touchDistancePos;
         float rad = Mathf.Atan2(distance.y, distance.x);
         float nowAngle = rad * 180 / Mathf.PI - 90;
 
