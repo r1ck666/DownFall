@@ -35,6 +35,11 @@ public class PlayerController : MonoBehaviour {
         directionState = GetDirection(transform.eulerAngles.y);
 	}
 
+    void Updata()
+    {
+        
+    }
+
 	// Update is called once per frame
 	void FixedUpdate () {
 
