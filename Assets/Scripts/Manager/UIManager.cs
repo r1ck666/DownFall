@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class UIManager : SingletonMonoBehaviour<UIManager> {
 
     private PlayerController playerController;
+    [SerializeField]
+    private Text limitTimeText;
 
     protected override void Awake()
     {
@@ -32,6 +34,9 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
         playerController.OnActionButton(isPush);
     }
 
-
+    public void SetLimitTime(float time)
+    {
+        limitTimeText.text = time.ToString();
+    }
 
 }

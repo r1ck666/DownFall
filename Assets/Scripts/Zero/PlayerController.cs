@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour {
 
@@ -49,16 +50,20 @@ public class PlayerController : MonoBehaviour {
         switch (info)
         {
             case TouchInfo.Began:
-                touchBeginePos = AppUtil.GetTouchPosition();
+                if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+                    touchBeginePos = AppUtil.GetTouchPosition();
                 break;
 
             case TouchInfo.Moved:
-                touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
-                if (touchDistancePos.magnitude > needTapDistance && !isAttack)
+                if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
                 {
-                    SetDirection();
-                    if (!isDirectionMode)
-                        Move();
+                    touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
+                    if (touchDistancePos.magnitude > needTapDistance && !isAttack)
+                    {
+                        SetDirection();
+                        if (!isDirectionMode)
+                            Move();
+                    }
                 }
                 break;
             case TouchInfo.Ended:
