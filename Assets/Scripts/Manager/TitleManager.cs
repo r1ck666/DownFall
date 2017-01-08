@@ -49,7 +49,6 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		// Photon
 
 		// #NotImportant
-        // Force Full LogLevel
         PhotonNetwork.logLevel = Loglevel;
 
 		// #Critical
@@ -61,6 +60,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         PhotonNetwork.automaticallySyncScene = true;
 
 	}
+
 
 	void Start() {
 		gameVersionLabel.text = "GameVersion: " + _gameVersion;
@@ -95,6 +95,9 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         }
     }
 
+	/// <summary>
+    /// Photon.PunBehabiourのコールバックメソッド
+    /// </summary>
 	public override void OnConnectedToMaster()
 	{
     	DebugLogger.Log("TitleManager: OnConnectedToMaster() was called by PUN");
@@ -107,6 +110,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	{
 		DebugLogger.Log("TitleManager: OnJoinedLobby() was called by PUN");
 		menu.SetActive(true);
+		iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
 		progressLabel.SetActive(false);
 		UpdateRoomInfo();
 	}
@@ -117,7 +121,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     	Debug.LogWarning("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
 	}
 
-	public void OnPhotonCreateRoomFailed()
+	public override void OnPhotonCreateRoomFailed(object[] codeAndMsg)
 	{
 		DebugLogger.Log("TitleManager: OnPhotonCreateGameFailed() was called by PUN");
 	}
@@ -125,21 +129,21 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnJoinedRoom()
 	{
     	DebugLogger.Log("TitleManger: OnJoinedRoom() called by PUN. Now this client is in a room.");
-		progressLabel.SetActive(true);
 	}
 
-	public void OnPhotonJoinRoomFailed()
+	public override void OnPhotonJoinRoomFailed(object[] codAndMsg)
 	{
 		DebugLogger.Log("TitleManger: OnPhotonJoinRoomFailed() called by PUN");
 		ErrorDialog ("ルームの接続に失敗しました。");
 
 	}
 
-	//=========================================
-	// JoinRoom関数
-	//=========================================
 
+	/// <summary>
+    /// MenuButtonから呼び出してルームに接続します
+    /// </summary>
 	public void JoinRoom (int n) {
+		progressLabel.SetActive(true);
 		switch (n) {
 			case 2:
 				if (PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { maxPlayers = 2 }, null)){
@@ -165,6 +169,9 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		}
 	}
 
+	/// <summary>
+    /// ルーム人数を更新してMenuに表示します
+    /// </summary>
 	public void UpdateRoomInfo(){
 		roomInfo = PhotonNetwork.GetRoomList();
 		int[] counts = new int[] {0, 0, 0, 0};
