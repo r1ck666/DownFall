@@ -11,11 +11,6 @@ public enum BlockState {
 
 public class Block : MonoBehaviour {
 
-	[SerializeField] string name;
-	public string Name {
-		get { return name; }
-		set { name = value; }
-	}
 
 	[SerializeField] int durability;
 	public int Durability {
