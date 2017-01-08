@@ -16,7 +16,7 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 
 	// Use this for initialization
 	void Start () {
-        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        //SetPlayer();
 	}
 	
 	// Update is called once per frame
@@ -37,6 +37,10 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
     public void SetLimitTime(float time)
     {
         limitTimeText.text = time.ToString();
+    }
+
+    public void SetPlayer(){
+        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 
 }
