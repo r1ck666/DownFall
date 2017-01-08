@@ -184,10 +184,11 @@ public class PlayerController : MonoBehaviour {
     /*----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------*/
 
     /// <summary>
-    /// アクションモーション入り時に呼び出す関数
+    /// アクションモーション入る前に呼び出す関数
     /// </summary>
     public void OnActionMotionEnter()
     {
+        anim.SetTrigger("Attack");
         isAttack = true;
         iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
     }
@@ -209,8 +210,8 @@ public class PlayerController : MonoBehaviour {
     {
         Debug.Log("ABunton" + isPushAttackButton);
         isAttack = false;
-        if(isPushAttackButton)
-            anim.SetTrigger("Attack");
+        //if(isPushAttackButton)
+        //    anim.SetTrigger("Attack");
     }
 
     /// <summary>
@@ -226,11 +227,23 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionButton(bool isPush)
     {
-        isPushAttackButton = isPush;
         if (!isAttack && isPush)
         {
             OnActionMotionEnter();
-            anim.SetTrigger("Attack");
+        }
+        isPushAttackButton = isPush;
+    }
+
+    /// <summary>
+    /// Idleから呼ばれる
+    /// 長押ししてたらモーションへ
+    /// </summary>
+    public void OnActionButtonStay()
+    {
+        Debug.Log(isAttack + " : " + isPushAttackButton);
+        if (!isAttack && isPushAttackButton)
+        {
+            OnActionMotionEnter();
         }
     }
 
