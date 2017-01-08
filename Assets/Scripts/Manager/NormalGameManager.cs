@@ -10,6 +10,8 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	//================================
 	string _gameVersion = "1";
 
+	[SerializeField] GameObject playerPrefab;
+
 	//================================
 	// GameRole関連
 	//================================
@@ -72,6 +74,13 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		stage = StageManager.Instance.GetStage();
 		blocks = stage.GetBlocks();
 		blocksObject = StageManager.Instance.GetBlocksObject();
+
+		//PhotonInstantiate
+		if (playerPrefab == null) {
+    		Debug.LogError("NormalGameManager: PlayerPrefabをインスペクタから設定してください");
+		} else {
+    			PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(5, 1, 5), Quaternion.identity, 0);
+		}
 
 	}
 
