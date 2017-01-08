@@ -17,7 +17,7 @@ public class SingletonPhotonMonoBehaviour<T> : Photon.PunBehaviour where T : Mon
 		if (instance == null) {
 			instance = FindObjectOfType<T>();
 		} else if (instance != this) {
-			Destroy(this);
+			Destroy(this.gameObject);
 		}
 	}
 
