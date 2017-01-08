@@ -127,6 +127,8 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     /// <returns>ブロックが修復・破壊可能かを返します</returns>
 	public bool ActionJudge (int x, int z) {
 
+		DebugLogger.Log("ActionJudge called X:" + x + " Z:" + z);
+
 		if (blocksObject[x,1,z].State == BlockState.NONE ) {
 
 			Block block = blocksObject[x, 0, z];
@@ -150,35 +152,45 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	void ChangeBlock (int x, int y, int z, BlockState state)
 	{
 
+		DebugLogger.Log("ChangeBlock called X:" + x + " Y:" + y + " Z:" + z);
+
 		Block block = blocksObject[x, y, z];
 		Renderer re = block.GetComponent<Renderer>();
 
 		switch (state) {
 			case BlockState.NONE:
+				DebugLogger.Log("ChangeBlock called State: NONE");
 				blocks[x, y, z] = 0;
 				block.Durability = DURABILITY_NONE;
 				block.State = state;
+				block.GetComponent<BoxCollider>().enabled = false;
 				re.enabled = false;
 				photonView.RPC("DownFall", PhotonTargets.AllBufferedViaServer, x, z);
 				break;
 			case BlockState.NORMAL:
+				DebugLogger.Log("ChangeBlock called State: NORMAL");
 				blocks[x, y, z] = 1;
 				block.Durability = DURABILITY_NORMAL;
 				block.State = state;
+				block.GetComponent<BoxCollider>().enabled = true;
 				re.enabled = true;
 				re.material = MATERIAL_NORMAL;
 			 	break;
 			case BlockState.UNBREAK:
+				DebugLogger.Log("ChangeBlock called State: UNBREAK");
 				blocks[x, y, z] = 2;
 				block.Durability = DURABILITY_UNBREAK;
 				block.State = state;
+				block.GetComponent<BoxCollider>().enabled = true;
 				re.enabled = true;
 				re.material = MATERIAL_UNBREAK;
 				break;
 			case BlockState.BROKEN:
+				DebugLogger.Log("ChangeBlock called State: BROKEN");
 				blocks[x, y, z] = 3;
 				block.Durability = DURABILITY_BROKEN;
 				block.State = state;
+				block.GetComponent<BoxCollider>().enabled = true;
 				re.enabled = true;
 				re.material = MATERIAL_BROKEN;
 				break;
@@ -195,7 +207,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	void UpdateStage(int x, int y, int z)
 	{
 		//アクションボタンを押した時の処理
-		DebugLogger.Log("UpdateStage!");
+		DebugLogger.Log("UpdateStage called X:" + x + " Y:" + y + " Z:" + z);
 
 		Block block = blocksObject[x, y, z];
 
@@ -232,40 +244,57 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	[PunRPC]
 	void DownFall　(int x, int z)
 	{
-		bool[,] done = new bool[stage.X, stage.Z];
+		bool[,] memo = new bool[stage.X, stage.Z];
+		bool[,] flg = new bool[stage.X, stage.Z];
+		DebugLogger.Log("DownFall called X:" + x + " Z:" + z);
 		for (int i=0; i<4; i++) {
-			RecursiveJudge (x+dicX[i], z+dicZ[i], done);
+			bool[,] done = new bool[stage.X, stage.Z];
+			DebugLogger.Log("DownFall called i:" + i + " Start");
+			RecursiveJudge (x, z, x+dicX[i], z+dicZ[i], done, memo, flg);
+			DebugLogger.Log("DownFall called i:" + i + " End");
 		}
 	}
 
 	/// <summary>
     /// 隣接したブロックがない場合、ブロックを落下させる再起の探索を行います
     /// </summary>
+	/// <param name="prex">1つ前ののX座標</param>
+	/// <param name="prez">１つ前のZ座標</param>
     /// <param name="x">探索中ののX座標</param>
 	/// <param name="z">探索中のZ座標</param>
 	/// <param name="done">探索済みフラグ</param>
-	bool RecursiveJudge (int x, int z, bool[,] done)
+	/// <param name="memo">メモ化漸化式用</param>
+	/// <param name="flg">スキップ用フラグ</param>
+	bool RecursiveJudge (int prex, int prez, int x, int z, bool[,] done, bool[,] memo, bool[,] flg)
 	{
-		done[x, z] = true;	//探索済み
-		if ( blocksObject[x, 0, z].State == BlockState.UNBREAK ) return true;
-		if ( blocksObject[x, 0, z].State == BlockState.NONE ) return false;
-		if ( done[x, z] ) return false;
+		DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z);
+		if ( blocksObject[x, 0, z].State == BlockState.UNBREAK ) return memo[x, z] = true;
+		if ( blocksObject[x, 0, z].State == BlockState.NONE ) return memo[x, z] = false;
+		if ( memo[x, z] ) return true;	//メモ化再起
+		if ( flg[x, z] ) return false;
+		if ( done[x, z] ) {
+			flg[x, z] = true;
+			return RecursiveJudge (x, z, prex, prez, done, memo, flg);
+		}
+		done[x, z] = true;
 		for (int i=0; i<4; i++) {
-			if (RecursiveJudge (x+dicX[i], z+dicZ[i], done) ){
-				return true;
+			DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z + " i:" + i);
+			if (RecursiveJudge (x, z, x+dicX[i], z+dicZ[i], done, memo, flg) ){
+				return memo[x, z] = true;
 			}
 		}
 		// 落下処理
 		DebugLogger.Log("X:" + x + " Z: " + z + "が落下しました。");
 		iTween.MoveTo(blocksObject[x, 0, z].gameObject, iTween.Hash(
 				"y", -10,
+				"time", 5,
 				"oncomplete", "InitializePosY",
 				"oncompletetarget", blocksObject[x, 0, z].gameObject
 		));
 		blocks[x, 0, z] = 0;
 		blocksObject[x, 0, z].State = BlockState.NONE;
 		blocksObject[x, 0, z].Durability = DURABILITY_NONE;
-		return false;
+		return memo[x, z] = false;
 	}
 
 
