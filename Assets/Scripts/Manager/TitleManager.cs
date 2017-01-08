@@ -16,11 +16,9 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public PhotonLogLevel Loglevel = PhotonLogLevel.Informational;
 
 	/// <summary>
-	/// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
+	/// PlayStartのボタン
 	/// </summary>
-	[Tooltip("ルームに入れる最大人数(待機用のルーム)")]
-	public byte MaxPlayersPerRoom = 8;
-
+	[SerializeField] GameObject playStart;
 	/// <summary>
 	/// Connectingを表示するラベル
 	/// </summary>
@@ -34,9 +32,16 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// <summary>
 	/// エラーログを表示するラベル
 	/// </summary>
-	[SerializeField] Text ErrorLabrl;
+	[SerializeField] Text errorDialog;
 
-	[SerializeField] GameObject errorButton;
+	/// <summary>
+	/// ルーム選択画面のメニュー
+	/// </summary>
+	[SerializeField] GameObject menu;
+	[SerializeField] Text[] menuText;
+
+
+	RoomInfo[] roomInfo;
 
 	protected override void Awake()
 	{
@@ -44,7 +49,6 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		// Photon
 
 		// #NotImportant
-        // Force Full LogLevel
         PhotonNetwork.logLevel = Loglevel;
 
 		// #Critical
@@ -57,9 +61,20 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 
 	}
 
+
 	void Start() {
-		progressLabel.SetActive(false);
 		gameVersionLabel.text = "GameVersion: " + _gameVersion;
+		InitializeUI();
+	}
+	/// <summary>
+	/// UI画面を初期化します
+	/// </summary>
+	public void InitializeUI() {
+		playStart.SetActive(true);
+		progressLabel.SetActive(false);
+		menu.SetActive(false);
+		gameVersionLabel.transform.parent.gameObject.SetActive(true);
+		errorDialog.transform.parent.gameObject.SetActive(false);
 	}
 
     /// <summary>
@@ -73,21 +88,31 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected)
         {
-            if (!PhotonNetwork.JoinRoom("Waiting_Room")) {
-				PhotonNetwork.CreateRoom("Waiting_Room", new RoomOptions() { maxPlayers = MaxPlayersPerRoom }, null);
-			}
+            PhotonNetwork.JoinLobby();
         }else{
             // #Critical, we must first and foremost connect to Photon Online Server.
             PhotonNetwork.ConnectUsingSettings(_gameVersion);
         }
     }
 
+	/// <summary>
+    /// Photon.PunBehabiourのコールバックメソッド
+    /// </summary>
 	public override void OnConnectedToMaster()
 	{
     	DebugLogger.Log("TitleManager: OnConnectedToMaster() was called by PUN");
 		// #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnPhotonRandomJoinFailed()
-		PhotonNetwork.JoinRandomRoom();
+		PhotonNetwork.JoinLobby();
 
+	}
+
+	public override void OnJoinedLobby()
+	{
+		DebugLogger.Log("TitleManager: OnJoinedLobby() was called by PUN");
+		menu.SetActive(true);
+		iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
+		progressLabel.SetActive(false);
+		UpdateRoomInfo();
 	}
 
 	public override void OnDisconnectedFromPhoton()
@@ -96,21 +121,72 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     	Debug.LogWarning("TitleManager: OnDisconnectedFromPhoton() was called by PUN");
 	}
 
-	public  void OnPhotonCreateGameFailed()
+	public override void OnPhotonCreateRoomFailed(object[] codeAndMsg)
 	{
-
+		DebugLogger.Log("TitleManager: OnPhotonCreateGameFailed() was called by PUN");
 	}
 
 	public override void OnJoinedRoom()
 	{
     	DebugLogger.Log("TitleManger: OnJoinedRoom() called by PUN. Now this client is in a room.");
-		if (PhotonNetwork.room.playerCount == 1)
-    	{
-        	Debug.Log("We load the 'Room_for_2' ");
-
-        	// #Critical
-        	// Load the Room Level.
-        	PhotonNetwork.LoadLevel("Room_for_2");
-    	}
 	}
+
+	public override void OnPhotonJoinRoomFailed(object[] codAndMsg)
+	{
+		DebugLogger.Log("TitleManger: OnPhotonJoinRoomFailed() called by PUN");
+		ErrorDialog ("ルームの接続に失敗しました。");
+
+	}
+
+
+	/// <summary>
+    /// MenuButtonから呼び出してルームに接続します
+    /// </summary>
+	public void JoinRoom (int n) {
+		progressLabel.SetActive(true);
+		switch (n) {
+			case 2:
+				if (PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { maxPlayers = 2 }, null)){
+					PhotonNetwork.isMessageQueueRunning = false;
+					PhotonNetwork.LoadLevel(1);
+				}
+				break;
+			case 4:
+				if (PhotonNetwork.JoinOrCreateRoom("4", new RoomOptions { maxPlayers = 4 }, null)) {
+
+				}
+				break;
+			case 6:
+				if (PhotonNetwork.JoinOrCreateRoom("6", new RoomOptions { maxPlayers = 6 }, null)) {
+
+				}
+				break;
+			case 8:
+				if (PhotonNetwork.JoinOrCreateRoom("8", new RoomOptions { maxPlayers = 8 }, null)) {
+
+				}
+				break;
+		}
+	}
+
+	/// <summary>
+    /// ルーム人数を更新してMenuに表示します
+    /// </summary>
+	public void UpdateRoomInfo(){
+		roomInfo = PhotonNetwork.GetRoomList();
+		int[] counts = new int[] {0, 0, 0, 0};
+		foreach(RoomInfo info in roomInfo){
+			int n = int.Parse(info.name);
+			counts[n/2-1] = info.playerCount;
+		}
+		for (int i=0; i<4; i++) {
+			menuText[i].text = "現在の人数： " + counts[i].ToString() + " / " + ((i+1)*2).ToString();
+		}
+	}
+
+	public void ErrorDialog (string mes) {
+		errorDialog.transform.parent.gameObject.SetActive(true);
+		errorDialog.text = mes;
+	}
+
 }

@@ -50,13 +50,20 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	}
 
 	public AnimState ActionJudge (uint x, uint z) {
+
+		//これは自分だけ処理が早い
+		photonView.RPC("StageChange", PhotonTargets.AllBuffered);
+		//みんなとタイミング一緒
+		photonView.RPC("StageChange", PhotonTargets.AllBufferedViaServer);
 		//y座標が1の時にブロックがなければ、y座標0を調べる
 		return AnimState.BREAK;
+
 	}
 
 
 	//================================
 	// Photon関連
+	// 入室・退室処理
 	//================================
 
 	public override  void OnLeftRoom()
@@ -91,4 +98,15 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     	}
 	}
 
+	//================================
+	// Photon関連
+	// RPC系
+	//================================
+
+	[PunRPC]
+	void StageChange()
+	{
+		//アクションボタンを押した時の処理
+		DebugLogger.Log("StageChange!");
+	}
 }
