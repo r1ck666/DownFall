@@ -10,7 +10,8 @@ public class FollowCamera : MonoBehaviour {
 
 
 	void Start () {
-        //SetTarget();
+		GameObject obj = GameObject.FindWithTag("Player");
+		lookTarget = obj.transform;
 	}
 	// Update is called once per frame
 	void LateUpdate () {
@@ -27,12 +28,6 @@ public class FollowCamera : MonoBehaviour {
 			transform.LookAt(lookPosition);
 
 		}
+
 	}
-
-    public void SetTarget(){
-        GameObject obj = GameObject.FindWithTag("Player");
-        lookTarget = obj.transform;
-    }
-
-
 }
