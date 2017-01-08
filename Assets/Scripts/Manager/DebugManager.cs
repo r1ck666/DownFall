@@ -16,6 +16,12 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	// TitleManager
 	// ===============================
 	[SerializeField, HeaderAttribute("TitleManager")] GameObject titleUI;
+	// ===============================
+	// NormalGameManager
+	// ===============================
+	[SerializeField, HeaderAttribute("NormalGameManager")] GameObject normalUI;
+	[SerializeField] int normalX = 5;
+	[SerializeField] int normalZ = 5;
 
 
 	protected override void Awake () {
@@ -90,5 +96,19 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 		}
 	}
 
+	// ===============================
+	// NormalGame Method
+	// ===============================
+	public void SetActiveNormalUI() {
+		if (normalUI.activeSelf){
+			normalUI.SetActive (false);
+		} else {
+			normalUI.SetActive (true);
+		}
+	}
+
+	public void ActionButton() {
+		NormalGameManager.Instance.ActionJudge (normalX, normalZ);
+	}
 
 }

@@ -10,7 +10,7 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
 
     private PlayerController playerController;
 
-    private bool isMine; 
+    private bool isMine;
 
 	void Awake () {
         isMine = photonView.isMine;
@@ -25,7 +25,7 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
         isMine = true;
         playerController.enabled = true;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
         //自分のキャラクター以外の時はLerpを使って滑らかに位置と角度を変更

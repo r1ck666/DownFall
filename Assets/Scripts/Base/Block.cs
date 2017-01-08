@@ -25,11 +25,13 @@ public class Block : MonoBehaviour {
 	}
 
 	/// <summary>
-    /// iTweenで落下した位置を元に戻します
+    /// iTweenで落下した位置を元に戻します(コライダも消します)
     /// </summary>
 	public void InitializePosY()
 	{
 		Vector3 pos = transform.position;
 		transform.position = new Vector3 (pos.x, 0, pos.z);
+		GetComponent<Renderer>().enabled = false;
+		GetComponent<BoxCollider>().enabled = false;
 	}
 }
