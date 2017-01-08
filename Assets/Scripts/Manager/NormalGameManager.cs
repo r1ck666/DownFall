@@ -10,7 +10,13 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	//================================
 	string _gameVersion = "1";
 
+	//================================
+	// Character関連
+	//================================
+
 	[SerializeField] GameObject playerPrefab;
+	[SerializeField] GameObject mainCamera;
+	[SerializeField] GameObject player;
 
 	//================================
 	// GameRole関連
@@ -66,6 +72,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	protected override void Awake()
 	{
 		base.Awake();
+		PhotonNetwork.isMessageQueueRunning = true;
 	}
 
 	void Start()
@@ -79,7 +86,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		if (playerPrefab == null) {
     		Debug.LogError("NormalGameManager: PlayerPrefabをインスペクタから設定してください");
 		} else {
-    			PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(5, 1, 5), Quaternion.identity, 0);
+    			InitializePlayer();
 		}
 
 	}
@@ -124,6 +131,11 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	//================================
 	// Character関連
 	//================================
+
+	void InitializePlayer() {
+		player = PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(5, 1, 5), Quaternion.identity, 0);
+		mainCamera.GetComponent<FollowCamera>().LookTarget = player.transform;
+	}
 
 	//もしかして参照しているから、チェンジしても反映されない？
 	// ChangeBlock後にChangeされているか確認しよう
