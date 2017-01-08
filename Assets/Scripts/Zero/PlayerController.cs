@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+    //ステート
     DirectionState directionState;
     AnimState animState;
 
@@ -19,17 +20,18 @@ public class PlayerController : MonoBehaviour {
     private Vector3 touchBeginePos;
     private Vector3 touchDistancePos;
 
+    //コンポーネント
     private Animator anim;
-
-    //方向転換
-    private bool isDirectionMode;
-
     private Rigidbody rigidbody;
 
+    //方向転換モード
+    private bool isDirectionMode;
+    //アタック中かどうか
     private bool isAttack;
 
 	// Use this for initialization
 	void Start () {
+        Debug.Log("isattack" + isAttack);
         anim = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody>();
         isDirectionMode = false;
@@ -123,13 +125,6 @@ public class PlayerController : MonoBehaviour {
         //Debug.Log(transform.eulerAngles);
     }
 
-    /// <summary>
-    /// ボタンが押されたか離されたか
-    /// </summary>
-    public void OnDirectionButton(bool isPush)
-    {
-        isDirectionMode = isPush;
-    }
 
     /// <summary>
     ///　アクション時にゲームマネージャーに送る情報
@@ -165,6 +160,12 @@ public class PlayerController : MonoBehaviour {
         animState = aState;
     }
 
+
+    /// <summary>
+    /// 現在の回転から方向ステートを取る関数
+    /// </summary>
+    /// <param name="angleY">Yの回転</param>
+    /// <returns>方向のステート</returns>
     DirectionState GetDirection(float angleY)
     {
         if (45f <= angleY && angleY < 135f)
@@ -177,17 +178,43 @@ public class PlayerController : MonoBehaviour {
             return DirectionState.FRONT;
     }
 
+    /*----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------*/
+
+    /// <summary>
+    /// アクションモーション時に呼び出す関数
+    /// </summary>
     public void OnActionMotionEnter()
     {
         isAttack = true;
         iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
     }
 
+    /// <summary>
+    /// アクションが終わるすこし前に呼び出される
+    /// </summary>
     public void OnActionMotionExit()
     {
         isAttack = false;
         SendFroundBlock();
         iTween.RotateTo(gameObject, iTween.Hash("x", 0, "islocal", true, "time", 0.5f));
+        anim.SetBool("Attack",false);
+    }
+
+    /// <summary>
+    /// ボタンが押されたか離されたか
+    /// </summary>
+    public void OnDirectionButton(bool isPush)
+    {
+        isDirectionMode = isPush;
+    }
+
+    /// <summary>
+    /// UIManagerからアクションボタンが押されたときに呼び出される
+    /// </summary>
+    public void OnActionButton()
+    {
+        if(!isAttack)
+            anim.SetBool("Attack", true);        
     }
 
 }

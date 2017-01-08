@@ -12,13 +12,18 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
 
     private bool isMine; 
 
-	// Use this for initialization
-	void Start () {
+	void Awake () {
         isMine = photonView.isMine;
         playerController = GetComponent<PlayerController>();
-
         playerController.enabled = isMine;
-        Debug.Log(isMine);
+        if (isMine)
+            gameObject.tag = "Player";
+        else
+            gameObject.tag = "Enemy";
+        //デバック用
+        //gameObject.tag = "Player";
+        //isMine = true;
+        //playerController.enabled = true;
 	}
 	
 	// Update is called once per frame
