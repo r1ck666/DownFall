@@ -26,43 +26,41 @@ public class PlayerController : MonoBehaviour {
 
     private Rigidbody rigidbody;
 
+    private bool isAttack;
+
 	// Use this for initialization
 	void Start () {
         anim = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody>();
         isDirectionMode = false;
+        isAttack = false;
         animState = AnimState.NONE;
         directionState = GetDirection(transform.eulerAngles.y);
 	}
-
-    void Updata()
-    {
-        
-    }
 
 	// Update is called once per frame
 	void FixedUpdate () {
 
         TouchInfo info = AppUtil.GetTouch();
 
-        if (info == TouchInfo.Began)
+        switch (info)
         {
-            touchBeginePos = AppUtil.GetTouchPosition();
-        }
-        else if (info == TouchInfo.Moved)
-        {
-            touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
-            if (touchDistancePos.magnitude > needTapDistance)
-            {
-                Debug.Log(isDirectionMode);
-                SetDirection();
-                if(!isDirectionMode)
-                    Move();
-            }
-        }
-        else if (info == TouchInfo.Ended)
-        {
-            anim.SetBool("Run",false);
+            case TouchInfo.Began:
+                touchBeginePos = AppUtil.GetTouchPosition();
+                break;
+
+            case TouchInfo.Moved:
+                touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
+                if (touchDistancePos.magnitude > needTapDistance && !isAttack)
+                {
+                    SetDirection();
+                    if (!isDirectionMode)
+                        Move();
+                }
+                break;
+            case TouchInfo.Ended:
+                anim.SetBool("Run", false);
+                break;
         }
         Maker();
 	}
@@ -134,13 +132,13 @@ public class PlayerController : MonoBehaviour {
     }
 
     /// <summary>
-    ///　アクションボタンが押されたとき
+    ///　アクション時にゲームマネージャーに送る情報
     ///　前方向のブロックを探索して壊す、または直す
     /// </summary>
-    public void OnActionButton()
+    public void SendFroundBlock()
     {
-        uint x = (uint)Mathf.RoundToInt(transform.position.x);
-        uint z = (uint)Mathf.RoundToInt(transform.position.y);
+        int x = Mathf.RoundToInt(transform.position.x);
+        int z = Mathf.RoundToInt(transform.position.y);
         
         switch (directionState)
         {
@@ -158,11 +156,8 @@ public class PlayerController : MonoBehaviour {
                 break;
         }
 
-        if (animState == AnimState.NONE)
-        {
-            //ここでy,zをおくる
-            //NormalGameManager.Instance.ActionJudge(x,z);
-        }
+        NormalGameManager.Instance.ActionJudge(x,z);
+        
     }
 
     public void ActionAnimation(AnimState aState)
@@ -180,6 +175,19 @@ public class PlayerController : MonoBehaviour {
             return DirectionState.LEFT;
         else
             return DirectionState.FRONT;
+    }
+
+    public void OnActionMotionEnter()
+    {
+        isAttack = true;
+        iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
+    }
+
+    public void OnActionMotionExit()
+    {
+        isAttack = false;
+        SendFroundBlock();
+        iTween.RotateTo(gameObject, iTween.Hash("x", 0, "islocal", true, "time", 0.5f));
     }
 
 }
