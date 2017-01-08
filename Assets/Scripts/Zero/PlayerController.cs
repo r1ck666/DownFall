@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        maker = GameObject.FindGameObjectWithTag("Maker");
         Debug.Log("isattack" + isAttack);
         anim = GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody>();
