@@ -127,7 +127,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 			Block block = blocksObject[x, 0, z];
 			if ( block.State != BlockState.UNBREAK ) {
-				photonView.RPC("UpdateStage", AllBufferedViaServer, x, 0, z);
+				photonView.RPC("UpdateStage", PhotonTargets.AllBufferedViaServer, x, 0, z);
 				return true;
 			}
 			return false;
