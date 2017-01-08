@@ -50,20 +50,16 @@ public class PlayerController : MonoBehaviour {
         switch (info)
         {
             case TouchInfo.Began:
-                if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
-                    touchBeginePos = AppUtil.GetTouchPosition();
-                break;
+                touchBeginePos = AppUtil.GetTouchPosition();
+            break;
 
             case TouchInfo.Moved:
-                if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+                touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
+                if (touchDistancePos.magnitude > needTapDistance && !isAttack)
                 {
-                    touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
-                    if (touchDistancePos.magnitude > needTapDistance && !isAttack)
-                    {
-                        SetDirection();
-                        if (!isDirectionMode)
-                            Move();
-                    }
+                    SetDirection();
+                    if (!isDirectionMode)
+                        Move();
                 }
                 break;
             case TouchInfo.Ended:
@@ -138,9 +134,9 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void SendFroundBlock()
     {
-        int x = Mathf.RoundToInt(transform.position.x);
-        int z = Mathf.RoundToInt(transform.position.y);
-        
+        uint x = (uint)Mathf.RoundToInt(transform.position.x);
+        uint z = (uint)Mathf.RoundToInt(transform.position.z);
+
         switch (directionState)
         {
             case DirectionState.RIGHT:
@@ -157,7 +153,7 @@ public class PlayerController : MonoBehaviour {
                 break;
         }
 
-        NormalGameManager.Instance.ActionJudge(x,z);
+        NormalGameManager.Instance.ActionJudge((int)x,(int)z);
         
     }
 
