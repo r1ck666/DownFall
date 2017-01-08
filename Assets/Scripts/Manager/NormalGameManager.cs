@@ -50,6 +50,10 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	[SerializeField] Material MATERIAL_UNBREAK;
 	[SerializeField] Material MATERIAL_BROKEN;
 
+	// 再起関数用（上・下・左・右）
+	int[] dicX = new int[] {0, 0, -1, 1};
+	int[] dicZ = new int[] {1, -1, 0, 0};
+
 	//================================
 	// UI関連
 	//================================
@@ -155,7 +159,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 				block.Durability = DURABILITY_NONE;
 				block.State = state;
 				re.enabled = false;
-				photonView.RPC("DownFall", PhotonTargets.AllBufferedViaServer, x, y, z);
+				photonView.RPC("DownFall", PhotonTargets.AllBufferedViaServer, x, z);
 				break;
 			case BlockState.NORMAL:
 				blocks[x, y, z] = 1;
@@ -224,11 +228,45 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     /// ブロックの落下の処理をします
     /// </summary>
     /// <param name="x">変更のあったブロックのX座標</param>
-	/// <param name="y">変更のあったブロックのY座標</param>
 	/// <param name="z">変更のあったブロックのZ座標</param>
 	[PunRPC]
-	void DownFall　(int x, int y, int z)
+	void DownFall　(int x, int z)
 	{
-
+		bool[,] done = new bool[stage.X, stage.Z];
+		for (int i=0; i<4; i++) {
+			RecursiveJudge (x+dicX[i], z+dicZ[i], done);
+		}
 	}
+
+	/// <summary>
+    /// 隣接したブロックがない場合、ブロックを落下させる再起の探索を行います
+    /// </summary>
+    /// <param name="x">探索中ののX座標</param>
+	/// <param name="z">探索中のZ座標</param>
+	/// <param name="done">探索済みフラグ</param>
+	bool RecursiveJudge (int x, int z, bool[,] done)
+	{
+		done[x, z] = true;	//探索済み
+		if ( blocksObject[x, 0, z].State == BlockState.UNBREAK ) return true;
+		if ( blocksObject[x, 0, z].State == BlockState.NONE ) return false;
+		if ( done[x, z] ) return false;
+		for (int i=0; i<4; i++) {
+			if (RecursiveJudge (x+dicX[i], z+dicZ[i], done) ){
+				return true;
+			}
+		}
+		// 落下処理
+		DebugLogger.Log("X:" + x + " Z: " + z + "が落下しました。");
+		iTween.MoveTo(blocksObject[x, 0, z].gameObject, iTween.Hash(
+				"y", -10,
+				"oncomplete", "InitializePosY",
+				"oncompletetarget", blocksObject[x, 0, z].gameObject
+		));
+		blocks[x, 0, z] = 0;
+		blocksObject[x, 0, z].State = BlockState.NONE;
+		blocksObject[x, 0, z].Durability = DURABILITY_NONE;
+		return false;
+	}
+
+
 }

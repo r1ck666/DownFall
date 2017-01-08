@@ -23,4 +23,13 @@ public class Block : MonoBehaviour {
 		get { return state; }
 		set { state = value; }
 	}
+
+	/// <summary>
+    /// iTweenで落下した位置を元に戻します
+    /// </summary>
+	public void InitializePosY()
+	{
+		Vector3 pos = transform.position;
+		transform.position = new Vector3 (pos.x, 0, pos.z);
+	}
 }
