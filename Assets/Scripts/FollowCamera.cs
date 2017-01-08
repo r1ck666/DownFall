@@ -5,14 +5,13 @@ public class FollowCamera : MonoBehaviour {
 	public float distance = 5.0f;
 	[SerializeField] private float horizontalAngle = 0;
 	[SerializeField] private float verticalAngle = 70;
-	public Transform lookTarget;
+	[SerializeField] Transform lookTarget;
+	public Transform LookTarget {
+		get { return lookTarget; }
+		set { lookTarget = value; }
+	}
 	public Vector3 offset = Vector3.zero;
 
-
-	void Start () {
-		GameObject obj = GameObject.FindWithTag("Player");
-		lookTarget = obj.transform;
-	}
 	// Update is called once per frame
 	void LateUpdate () {
 		// カメラを位置と回転を更新する.

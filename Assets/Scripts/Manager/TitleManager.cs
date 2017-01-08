@@ -19,7 +19,6 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// PlayStartのボタン
 	/// </summary>
 	[SerializeField] GameObject playStart;
-	public bool isStartButton = false;
 	/// <summary>
 	/// Connectingを表示するラベル
 	/// </summary>
@@ -41,6 +40,10 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	[SerializeField] GameObject menu;
 	[SerializeField] Text[] menuText;
 
+	/// <summary>
+	/// 現在選択中のゲームシーンのNo.
+	/// </summary>
+	int sceneNum = 0;
 
 	RoomInfo[] roomInfo;
 
@@ -72,7 +75,6 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// </summary>
 	public void InitializeUI() {
 		playStart.SetActive(true);
-		isStartButton = false;
 		progressLabel.SetActive(false);
 		menu.SetActive(false);
 		gameVersionLabel.transform.parent.gameObject.SetActive(true);
@@ -86,7 +88,6 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     /// </summary>
     public void Connect()
     {
-		isStartButton = true;
 		progressLabel.SetActive(true);
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected)
@@ -112,12 +113,10 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnJoinedLobby()
 	{
 		DebugLogger.Log("TitleManager: OnJoinedLobby() was called by PUN");
-		if (isStartButton) {
-			menu.SetActive(true);
-			iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
-			progressLabel.SetActive(false);
-			UpdateRoomInfo();
-		}
+		menu.SetActive(true);
+		iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
+		progressLabel.SetActive(false);
+		UpdateRoomInfo();
 	}
 
 	public override void OnDisconnectedFromPhoton()
@@ -134,6 +133,8 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnJoinedRoom()
 	{
     	DebugLogger.Log("TitleManger: OnJoinedRoom() called by PUN. Now this client is in a room.");
+		PhotonNetwork.isMessageQueueRunning = false;
+		PhotonNetwork.LoadLevel(1);
 	}
 
 	public override void OnPhotonJoinRoomFailed(object[] codAndMsg)
@@ -152,24 +153,22 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		switch (n) {
 			case 2:
 				if (PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { maxPlayers = 2 }, null)){
-					DebugLogger.Log("TitleManager: JoinOrCreateRoom(2)");
-					PhotonNetwork.isMessageQueueRunning = false;
-					PhotonNetwork.LoadLevel(1);
+					sceneNum = 1;
 				}
 				break;
 			case 4:
 				if (PhotonNetwork.JoinOrCreateRoom("4", new RoomOptions { maxPlayers = 4 }, null)) {
-
+					sceneNum = 2;
 				}
 				break;
 			case 6:
 				if (PhotonNetwork.JoinOrCreateRoom("6", new RoomOptions { maxPlayers = 6 }, null)) {
-
+					sceneNum = 3;
 				}
 				break;
 			case 8:
 				if (PhotonNetwork.JoinOrCreateRoom("8", new RoomOptions { maxPlayers = 8 }, null)) {
-
+					sceneNum = 4;
 				}
 				break;
 		}
