@@ -19,6 +19,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// PlayStartのボタン
 	/// </summary>
 	[SerializeField] GameObject playStart;
+	public bool isStartButton = false;
 	/// <summary>
 	/// Connectingを表示するラベル
 	/// </summary>
@@ -71,6 +72,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// </summary>
 	public void InitializeUI() {
 		playStart.SetActive(true);
+		isStartButton = false;
 		progressLabel.SetActive(false);
 		menu.SetActive(false);
 		gameVersionLabel.transform.parent.gameObject.SetActive(true);
@@ -84,6 +86,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     /// </summary>
     public void Connect()
     {
+		isStartButton = true;
 		progressLabel.SetActive(true);
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected)
@@ -109,10 +112,12 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnJoinedLobby()
 	{
 		DebugLogger.Log("TitleManager: OnJoinedLobby() was called by PUN");
-		menu.SetActive(true);
-		iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
-		progressLabel.SetActive(false);
-		UpdateRoomInfo();
+		if (isStartButton) {
+			menu.SetActive(true);
+			iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
+			progressLabel.SetActive(false);
+			UpdateRoomInfo();
+		}
 	}
 
 	public override void OnDisconnectedFromPhoton()
@@ -147,6 +152,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		switch (n) {
 			case 2:
 				if (PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { maxPlayers = 2 }, null)){
+					DebugLogger.Log("TitleManager: JoinOrCreateRoom(2)");
 					PhotonNetwork.isMessageQueueRunning = false;
 					PhotonNetwork.LoadLevel(1);
 				}
