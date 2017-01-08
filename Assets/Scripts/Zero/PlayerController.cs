@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour {
     private bool isDirectionMode;
     //アタック中かどうか
     private bool isAttack;
+    private bool isPushAttackButton;
 
 	// Use this for initialization
 	void Start () {
@@ -181,7 +182,7 @@ public class PlayerController : MonoBehaviour {
     /*----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------*/
 
     /// <summary>
-    /// アクションモーション時に呼び出す関数
+    /// アクションモーション入り時に呼び出す関数
     /// </summary>
     public void OnActionMotionEnter()
     {
@@ -190,14 +191,24 @@ public class PlayerController : MonoBehaviour {
     }
 
     /// <summary>
-    /// アクションが終わるすこし前に呼び出される
+    /// アクションの最中に呼び出される
+    /// </summary>
+    public void OnActionMotion()
+    {
+        SendFroundBlock();
+        iTween.RotateTo(gameObject, iTween.Hash("x", 0, "islocal", true, "time", 0.5f));
+    }
+
+    /// <summary>
+    /// アクションが終わるときに呼び出される
+    /// アタックボタンが押されていたらそのままアタックへ
     /// </summary>
     public void OnActionMotionExit()
     {
+        Debug.Log("ABunton" + isPushAttackButton);
         isAttack = false;
-        SendFroundBlock();
-        iTween.RotateTo(gameObject, iTween.Hash("x", 0, "islocal", true, "time", 0.5f));
-        anim.SetBool("Attack",false);
+        if(isPushAttackButton)
+            anim.SetTrigger("Attack");
     }
 
     /// <summary>
@@ -209,12 +220,16 @@ public class PlayerController : MonoBehaviour {
     }
 
     /// <summary>
-    /// UIManagerからアクションボタンが押されたときに呼び出される
+    /// UIManagerからアクションボタンが押された、離されたときに呼び出される
     /// </summary>
-    public void OnActionButton()
+    public void OnActionButton(bool isPush)
     {
-        if(!isAttack)
-            anim.SetBool("Attack", true);        
+        isPushAttackButton = isPush;
+        if (!isAttack && isPush)
+        {
+            OnActionMotionEnter();
+            anim.SetTrigger("Attack");
+        }
     }
 
 }

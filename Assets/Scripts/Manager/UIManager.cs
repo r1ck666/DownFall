@@ -27,9 +27,9 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
         playerController.OnDirectionButton(isPush);
     }
 
-    public void OnActionButton()
+    public void OnActionButton(bool isPush)
     {
-        playerController.OnActionButton();
+        playerController.OnActionButton(isPush);
     }
 
 

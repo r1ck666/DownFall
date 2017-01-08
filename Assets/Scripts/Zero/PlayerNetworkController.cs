@@ -21,9 +21,9 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
         else
             gameObject.tag = "Enemy";
         //デバック用
-        //gameObject.tag = "Player";
-        //isMine = true;
-        //playerController.enabled = true;
+        gameObject.tag = "Player";
+        isMine = true;
+        playerController.enabled = true;
 	}
 	
 	// Update is called once per frame
