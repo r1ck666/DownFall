@@ -16,10 +16,9 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
 	void Start () {
         isMine = photonView.isMine;
         playerController = GetComponent<PlayerController>();
-        if (!isMine)
-        {
-            playerController.enabled = false;
-        }
+
+        playerController.enabled = isMine;
+        Debug.Log(isMine);
 	}
 	
 	// Update is called once per frame
