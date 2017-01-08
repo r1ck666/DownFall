@@ -17,7 +17,7 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour {
 		if (instance == null) {
 			instance = FindObjectOfType<T>();
 		} else if (instance != this) {
-			Destroy(this);
+			Destroy(this.gameObject);
 		}
 	}
 
@@ -26,4 +26,3 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour {
 	}
 
 }
-
