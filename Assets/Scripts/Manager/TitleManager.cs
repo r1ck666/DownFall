@@ -19,6 +19,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// PlayStartのボタン
 	/// </summary>
 	[SerializeField] GameObject playStart;
+	bool isPlay = false;
 	/// <summary>
 	/// Connectingを表示するラベル
 	/// </summary>
@@ -88,6 +89,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
     /// </summary>
     public void Connect()
     {
+		isPlay = true;
 		progressLabel.SetActive(true);
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected)
@@ -113,10 +115,16 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnJoinedLobby()
 	{
 		DebugLogger.Log("TitleManager: OnJoinedLobby() was called by PUN");
-		menu.SetActive(true);
-		iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
-		progressLabel.SetActive(false);
-		UpdateRoomInfo();
+		if ( isPlay ) {
+			isPlay = false;
+			menu.SetActive(true);
+			iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
+			progressLabel.SetActive(false);
+			UpdateRoomInfo();
+		} else {
+			InitializeUI();
+		}
+
 	}
 
 	public override void OnDisconnectedFromPhoton()

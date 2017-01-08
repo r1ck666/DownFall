@@ -135,6 +135,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	void InitializePlayer() {
 		player = PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(5, 1, 5), Quaternion.identity, 0);
 		mainCamera.GetComponent<FollowCamera>().LookTarget = player.transform;
+		UIManager.Instance.SetPlayer();
 	}
 
 	//もしかして参照しているから、チェンジしても反映されない？
@@ -148,7 +149,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     /// <returns>ブロックが修復・破壊可能かを返します</returns>
 	public bool ActionJudge (int x, int z) {
 
-		DebugLogger.Log("ActionJudge called X:" + x + " Z:" + z);
+		//DebugLogger.Log("ActionJudge called X:" + x + " Z:" + z);
 
 		if (blocksObject[x,1,z].State == BlockState.NONE ) {
 
@@ -173,14 +174,14 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	void ChangeBlock (int x, int y, int z, BlockState state)
 	{
 
-		DebugLogger.Log("ChangeBlock called X:" + x + " Y:" + y + " Z:" + z);
+		//DebugLogger.Log("ChangeBlock called X:" + x + " Y:" + y + " Z:" + z);
 
 		Block block = blocksObject[x, y, z];
 		Renderer re = block.GetComponent<Renderer>();
 
 		switch (state) {
 			case BlockState.NONE:
-				DebugLogger.Log("ChangeBlock called State: NONE");
+				//DebugLogger.Log("ChangeBlock called State: NONE");
 				blocks[x, y, z] = 0;
 				block.Durability = DURABILITY_NONE;
 				block.State = state;
@@ -189,7 +190,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 				photonView.RPC("DownFall", PhotonTargets.AllBufferedViaServer, x, z);
 				break;
 			case BlockState.NORMAL:
-				DebugLogger.Log("ChangeBlock called State: NORMAL");
+				//DebugLogger.Log("ChangeBlock called State: NORMAL");
 				blocks[x, y, z] = 1;
 				block.Durability = DURABILITY_NORMAL;
 				block.State = state;
@@ -198,7 +199,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 				re.material = MATERIAL_NORMAL;
 			 	break;
 			case BlockState.UNBREAK:
-				DebugLogger.Log("ChangeBlock called State: UNBREAK");
+				//DebugLogger.Log("ChangeBlock called State: UNBREAK");
 				blocks[x, y, z] = 2;
 				block.Durability = DURABILITY_UNBREAK;
 				block.State = state;
@@ -207,7 +208,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 				re.material = MATERIAL_UNBREAK;
 				break;
 			case BlockState.BROKEN:
-				DebugLogger.Log("ChangeBlock called State: BROKEN");
+				//DebugLogger.Log("ChangeBlock called State: BROKEN");
 				blocks[x, y, z] = 3;
 				block.Durability = DURABILITY_BROKEN;
 				block.State = state;
@@ -228,7 +229,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	void UpdateStage(int x, int y, int z)
 	{
 		//アクションボタンを押した時の処理
-		DebugLogger.Log("UpdateStage called X:" + x + " Y:" + y + " Z:" + z);
+		//DebugLogger.Log("UpdateStage called X:" + x + " Y:" + y + " Z:" + z);
 
 		Block block = blocksObject[x, y, z];
 
@@ -267,12 +268,12 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	{
 		bool[,] memo = new bool[stage.X, stage.Z];
 		bool[,] flg = new bool[stage.X, stage.Z];
-		DebugLogger.Log("DownFall called X:" + x + " Z:" + z);
+		//DebugLogger.Log("DownFall called X:" + x + " Z:" + z);
 		for (int i=0; i<4; i++) {
 			bool[,] done = new bool[stage.X, stage.Z];
-			DebugLogger.Log("DownFall called i:" + i + " Start");
+			//DebugLogger.Log("DownFall called i:" + i + " Start");
 			RecursiveJudge (x, z, x+dicX[i], z+dicZ[i], done, memo, flg);
-			DebugLogger.Log("DownFall called i:" + i + " End");
+			//DebugLogger.Log("DownFall called i:" + i + " End");
 		}
 	}
 
@@ -288,7 +289,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	/// <param name="flg">スキップ用フラグ</param>
 	bool RecursiveJudge (int prex, int prez, int x, int z, bool[,] done, bool[,] memo, bool[,] flg)
 	{
-		DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z);
+		//DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z);
 		if ( blocksObject[x, 0, z].State == BlockState.UNBREAK ) return memo[x, z] = true;
 		if ( blocksObject[x, 0, z].State == BlockState.NONE ) return memo[x, z] = false;
 		if ( memo[x, z] ) return true;	//メモ化再起
@@ -299,13 +300,13 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		}
 		done[x, z] = true;
 		for (int i=0; i<4; i++) {
-			DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z + " i:" + i);
+			//DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z + " i:" + i);
 			if (RecursiveJudge (x, z, x+dicX[i], z+dicZ[i], done, memo, flg) ){
 				return memo[x, z] = true;
 			}
 		}
 		// 落下処理
-		DebugLogger.Log("X:" + x + " Z: " + z + "が落下しました。");
+		//DebugLogger.Log("X:" + x + " Z: " + z + "が落下しました。");
 		iTween.MoveTo(blocksObject[x, 0, z].gameObject, iTween.Hash(
 				"y", -10,
 				"time", 5,
