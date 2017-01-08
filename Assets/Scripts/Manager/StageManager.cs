@@ -13,7 +13,7 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 	GameObject stageObject;
 	// BlockのPrefabが格納されているリスト
 	List<GameObject> blockList;
-	GameObject[,,] blocksObject;
+	Block[,,] blocksObject;
 
 	protected override void Awake() {
 		base.Awake();
@@ -26,7 +26,7 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 		return stage;
 	}
 
-	public GameObject[,,] GetBlocksObject() {
+	public Block[,,] GetBlocksObject() {
 		return blocksObject;
 	}
 
@@ -83,13 +83,13 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 	void MapCreate( Stage stage )
 	{
 		stageObject = new GameObject("Stage");
-		blocksObject = new GameObject[stage.X, stage.Y, stage.Z];
+		blocksObject = new Block[stage.X, stage.Y, stage.Z];
 		for (uint j = 0; j < stage.Y; j++) {
 			for (uint k = 0; k < stage.Z; k++) {
 				for (uint i = 0; i < stage.X; i++) {
 					GameObject go = Instantiate (blockList[(int)stage[i, j, k]], new Vector3(i, j, k), Quaternion.identity);
 					go.transform.parent = stageObject.transform;
-					blocksObject[i, j, k] = go;
+					blocksObject[i, j, k] = go.GetComponent<Block>();
 				}
 			}
 		}

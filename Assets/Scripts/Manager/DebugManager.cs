@@ -50,7 +50,6 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	{
 		switch (debugDropdown.value){
 		case 0:
-
 			break;
 		case 1:
 			ShowPlayerProperty();
@@ -80,9 +79,10 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 							+ "現在いるルームの人数: " + room.playerCount.ToString() + "\n"
 							+ "現在いるルームの最大人数 :" + room.maxPlayers.ToString() + "\n"
 							+ "現在いるルームのMaster: " + PhotonNetwork.masterClient.name + "\n";
+			debugText.text += "現在ルームにいるPlayer(ID: , Name: ): " + "\n";
 			var playerList = PhotonNetwork.playerList;
 			foreach (var player in playerList){
-				debugText.text += "現在ルームにいるPlayer: " + player.name + " ";
+				debugText.text += "ID: " + player.ID.ToString() + "Name: " + player.name + "\n";
 			}
 			debugText.text += "\n";
 		} else {

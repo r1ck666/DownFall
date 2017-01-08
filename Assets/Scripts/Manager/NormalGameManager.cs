@@ -25,7 +25,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	Stage stage;
 	uint[,,] blocks;
-	GameObject[,,] blocksObject;
+	Block[,,] blocksObject;
 
 	//================================
 	// UI関連
@@ -49,14 +49,36 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	}
 
-	public AnimState ActionJudge (uint x, uint z) {
+	public bool ActionJudge (uint x, uint z) {
 
+		if (blocksObject[x,1,z].State = State.NONE ) {
+
+			switch (blocksObject[x, 0, z].State) {
+				case BlockState.NONE:
+					blocksObject[x, 0, z].Durability = blocksObject[x, 0, z].Durability - 1;
+					if (blocksObject[x, 0, z].Durability <= 0) {
+						
+					}
+					break;
+				case BlockState.NORMAL:
+					break;
+				case BlockState.UNBREAK:
+					break;
+				case BlockState.BROKEN:
+					break;
+			}
+		} else {
+			return false;
+		}
 		//これは自分だけ処理が早い
 		photonView.RPC("StageChange", PhotonTargets.AllBuffered);
-		//みんなとタイミング一緒
-		photonView.RPC("StageChange", PhotonTargets.AllBufferedViaServer);
 		//y座標が1の時にブロックがなければ、y座標0を調べる
 		return AnimState.BREAK;
+
+	}
+
+	void ChangeBlock (int x, int y, int z, BlockState state)
+	{
 
 	}
 
