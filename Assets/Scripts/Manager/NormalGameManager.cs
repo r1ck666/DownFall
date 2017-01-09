@@ -62,6 +62,9 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	int[] dicX = new int[] {0, 0, -1, 1};
 	int[] dicZ = new int[] {1, -1, 0, 0};
 
+	//public List<int> fallX;
+	//public List<int> fallZ;
+
 	//================================
 	// UI関連
 	//================================
@@ -258,6 +261,11 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	}
 
+	//================================
+	// 落下処理１
+	//================================
+
+	/*
 	/// <summary>
     /// ブロックの落下の処理をします
     /// </summary>
@@ -319,5 +327,74 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		return memo[x, z] = false;
 	}
 
+	*/
 
+	//================================
+	// 落下処理２
+	//================================
+
+	/// <summary>
+    /// ブロックの落下の処理をします
+    /// </summary>
+    /// <param name="x">変更のあったブロックのX座標</param>
+	/// <param name="z">変更のあったブロックのZ座標</param>
+	[PunRPC]
+	void DownFall　(int x, int z)
+	{
+
+		//DebugLogger.Log("DownFall called X:" + x + " Z:" + z);
+		for (int i=0; i<4; i++) {
+			bool[,] done = new bool[stage.X, stage.Z];
+			List<int> fallX = new List<int>();
+			List<int> fallZ = new List<int>();
+			//DebugLogger.Log("DownFall called i:" + i + " Start");
+
+			// falseが返ってきた時に落下処理を行う
+			if (!RecursiveJudge (x+dicX[i], z+dicZ[i], ref done, ref fallX, ref fallZ)){
+				//落下処理
+				for (int j = 0; j < fallX.Count; j++) {
+
+					//DebugLogger.Log("X:" + fallX[j] + " Z: " + fallZ[j] + "が落下しました。");
+					iTween.MoveTo(blocksObject[fallX[j], 0, fallZ[j]].gameObject, iTween.Hash(
+							"y", -10,
+							"time", 5,
+							"oncomplete", "InitializePosY",
+							"oncompletetarget", blocksObject[fallX[j], 0, fallZ[j]].gameObject
+					));
+					blocks[fallX[j], 0, fallZ[j]] = 0;
+					blocksObject[fallX[j], 0, fallZ[j]].State = BlockState.NONE;
+					blocksObject[fallX[j], 0, fallZ[j]].Durability = DURABILITY_NONE;
+				}
+			}
+			//DebugLogger.Log("DownFall called i:" + i + " End");
+		}
+	}
+
+	/// <summary>
+    /// 隣接したブロックがない場合、ブロックを落下させる再起の探索を行います
+    /// </summary>
+    /// <param name="x">探索中ののX座標</param>
+	/// <param name="z">探索中のZ座標</param>
+	/// <param name="done">探索済みフラグ</param>
+	/// <param name="fallX">探索済みブロックのX座標リスト</param>
+	/// <param name="fallZ">探索済みブロックのZ座標リスト</param>
+	bool RecursiveJudge (int x, int z, ref bool[,] done, ref List<int> fallX, ref List<int> fallZ)
+	{
+		//DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z);
+		if ( blocksObject[x, 0, z].State == BlockState.UNBREAK ) return true;
+		if ( blocksObject[x, 0, z].State == BlockState.NONE ) return false;
+		if ( done[x, z] ) return false;
+		done[x, z] = true;
+		for (int i=0; i<4; i++) {
+			//DebugLogger.Log("RecursiveJudge called X:" + x + " Z:" + z + " i:" + i);
+			if (RecursiveJudge (x+dicX[i], z+dicZ[i], ref done, ref fallX, ref fallZ) ){
+				return true;
+			}
+		}
+		//falseが返ってきた場合、リストに追加する
+		fallX.Add(x);
+		fallZ.Add(z);
+
+		return false;
+	}
 }
