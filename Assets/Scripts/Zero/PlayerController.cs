@@ -43,6 +43,10 @@ public class PlayerController : MonoBehaviour {
         directionState = GetDirection(transform.eulerAngles.y);
 	}
 
+    void Update()
+    {
+    }
+
 	// Update is called once per frame
 	void FixedUpdate () {
 
@@ -65,6 +69,13 @@ public class PlayerController : MonoBehaviour {
                 break;
             case TouchInfo.Ended:
                 anim.SetBool("Run", false);
+                //anim.SetBool("attack", false);
+                isPushAttackButton = false;
+                break;
+            case TouchInfo.Canceled:
+                anim.SetBool("Run",false);
+                //anim.SetBool("attack", false);
+                isPushAttackButton = false;
                 break;
         }
         Maker();
@@ -188,9 +199,10 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionMotionEnter()
     {
-        anim.SetTrigger("Attack");
         isAttack = true;
+        anim.SetBool("attack",isAttack);
         iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
+        Debug.Log("攻撃開始");
     }
 
     /// <summary>
@@ -210,6 +222,14 @@ public class PlayerController : MonoBehaviour {
     {
         Debug.Log("ABunton" + isPushAttackButton);
         isAttack = false;
+        if (isPushAttackButton){
+            OnActionMotionEnter();
+        }
+        else
+        {
+            anim.SetBool("attack", false);
+        }
+
         //if(isPushAttackButton)
         //    anim.SetTrigger("Attack");
     }
@@ -227,21 +247,9 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionButton(bool isPush)
     {
-        if (!isAttack && isPush)
-        {
-            OnActionMotionEnter();
-        }
+        Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
         isPushAttackButton = isPush;
-    }
-
-    /// <summary>
-    /// Idleから呼ばれる
-    /// 長押ししてたらモーションへ
-    /// </summary>
-    public void OnActionButtonStay()
-    {
-        Debug.Log(isAttack + " : " + isPushAttackButton);
-        if (!isAttack && isPushAttackButton)
+        if (!isAttack && isPush)
         {
             OnActionMotionEnter();
         }
