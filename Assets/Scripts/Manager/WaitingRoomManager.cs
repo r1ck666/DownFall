@@ -25,6 +25,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 	protected override void Awake () {
 		base.Awake();
 		PhotonNetwork.isMessageQueueRunning = true;
+		PhotonNetwork.automaticallySyncScene = true;
 	}
 
 	// Use this for initialization
@@ -107,7 +108,6 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 		var room = PhotonNetwork.room;
 		if ( PhotonNetwork.player.isMasterClient && room.maxPlayers == room.playerCount ) {
 
-			PhotonNetwork.automaticallySyncScene = true;
 			PhotonNetwork.isMessageQueueRunning = false;
 			PhotonNetwork.LoadLevel("NormalGame_" + room.name);
 		} else {

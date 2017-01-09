@@ -71,6 +71,12 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		gameVersionLabel.text = "GameVersion: " + _gameVersion;
 		InitializeUI();
 	}
+
+	void Update() {
+		if (menu.activeSelf) {
+			UpdateRoomInfo();
+		}
+	}
 	/// <summary>
 	/// UI画面を初期化します
 	/// </summary>
