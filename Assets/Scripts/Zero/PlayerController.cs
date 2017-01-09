@@ -29,7 +29,25 @@ public class PlayerController : MonoBehaviour {
     private bool isDirectionMode;
     //アタック中かどうか
     private bool isAttack;
+    public bool IsAttack
+    {
+        get{
+            return isAttack;
+        }
+        set{
+            isAttack = value;
+        }
+    }
     private bool isPushAttackButton;
+    public bool IsPushAttackButton
+    {
+        get{
+            return isPushAttackButton;
+        }
+        set{
+            isPushAttackButton = true;
+        }
+    }
 
 	// Use this for initialization
 	void Start () {
@@ -192,7 +210,16 @@ public class PlayerController : MonoBehaviour {
             return DirectionState.FRONT;
     }
 
-    /*----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------*/
+    /// <summary>
+    /// ボタンが押されたか離されたか
+    /// </summary>
+    public void OnDirectionButton(bool isPush)
+    {
+        isDirectionMode = isPush;
+    }
+
+    //----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------
+
 
     /// <summary>
     /// アクションモーション入る前に呼び出す関数
@@ -202,7 +229,7 @@ public class PlayerController : MonoBehaviour {
         isAttack = true;
         anim.SetBool("attack",isAttack);
         iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
-        Debug.Log("攻撃開始");
+        //Debug.Log("攻撃開始");
     }
 
     /// <summary>
@@ -220,7 +247,7 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionMotionExit()
     {
-        Debug.Log("ABunton" + isPushAttackButton);
+        //Debug.Log("ABunton" + isPushAttackButton);
         isAttack = false;
         if (isPushAttackButton){
             OnActionMotionEnter();
@@ -233,28 +260,21 @@ public class PlayerController : MonoBehaviour {
         //if(isPushAttackButton)
         //    anim.SetTrigger("Attack");
     }
-
-    /// <summary>
-    /// ボタンが押されたか離されたか
-    /// </summary>
-    public void OnDirectionButton(bool isPush)
-    {
-        isDirectionMode = isPush;
-    }
+    
 
     /// <summary>
     /// UIManagerからアクションボタンが押された、離されたときに呼び出される
     /// </summary>
     public void OnActionButton(bool isPush)
     {
-        Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
+        //Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
         isPushAttackButton = isPush;
         if (!isAttack && isPush)
         {
             OnActionMotionEnter();
         }
     }
-
+    
 }
 
 
