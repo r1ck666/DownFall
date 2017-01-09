@@ -29,18 +29,53 @@ public class PlayerController : MonoBehaviour {
     private bool isDirectionMode;
     //アタック中かどうか
     private bool isAttack;
+    public bool IsAttack
+    {
+        get{
+            return isAttack;
+        }
+        set{
+            isAttack = value;
+        }
+    }
     private bool isPushAttackButton;
+    public bool IsPushAttackButton
+    {
+        get{
+            return isPushAttackButton;
+        }
+        set{
+            isPushAttackButton = true;
+        }
+    }
+
+    //自分自身かどうか
+    private bool isMine;
+    public bool IsMine
+    {
+        get
+        {
+            return isMine;
+        }
+        set
+        {
+            isMine = value;
+        }
+    }
 
 	// Use this for initialization
 	void Start () {
-        maker = GameObject.FindGameObjectWithTag("Maker");
-        Debug.Log("isattack" + isAttack);
+        if (isMine)
+        {
+            maker = GameObject.FindGameObjectWithTag("Maker");
+            Debug.Log("isattack" + isAttack);
+            rigidbody = GetComponent<Rigidbody>();
+            isDirectionMode = false;
+            isAttack = false;
+            animState = AnimState.NONE;
+            directionState = GetDirection(transform.eulerAngles.y);
+        }
         anim = GetComponent<Animator>();
-        rigidbody = GetComponent<Rigidbody>();
-        isDirectionMode = false;
-        isAttack = false;
-        animState = AnimState.NONE;
-        directionState = GetDirection(transform.eulerAngles.y);
 	}
 
     void Update()
@@ -50,35 +85,39 @@ public class PlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 
-        TouchInfo info = AppUtil.GetTouch();
-
-        switch (info)
+        if (isMine)
         {
-            case TouchInfo.Began:
-                touchBeginePos = AppUtil.GetTouchPosition();
-            break;
 
-            case TouchInfo.Moved:
-                touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
-                if (touchDistancePos.magnitude > needTapDistance && !isAttack)
-                {
-                    SetDirection();
-                    if (!isDirectionMode)
-                        Move();
-                }
-                break;
-            case TouchInfo.Ended:
-                anim.SetBool("Run", false);
-                //anim.SetBool("attack", false);
-                isPushAttackButton = false;
-                break;
-            case TouchInfo.Canceled:
-                anim.SetBool("Run",false);
-                //anim.SetBool("attack", false);
-                isPushAttackButton = false;
-                break;
+            TouchInfo info = AppUtil.GetTouch();
+
+            switch (info)
+            {
+                case TouchInfo.Began:
+                    touchBeginePos = AppUtil.GetTouchPosition();
+                    break;
+
+                case TouchInfo.Moved:
+                    touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
+                    if (touchDistancePos.magnitude > needTapDistance && !isAttack)
+                    {
+                        SetDirection();
+                        if (!isDirectionMode)
+                            Move();
+                    }
+                    break;
+                case TouchInfo.Ended:
+                    anim.SetBool("Run", false);
+                    //anim.SetBool("attack", false);
+                    isPushAttackButton = false;
+                    break;
+                case TouchInfo.Canceled:
+                    anim.SetBool("Run", false);
+                    //anim.SetBool("attack", false);
+                    isPushAttackButton = false;
+                    break;
+            }
+            Maker();
         }
-        Maker();
 	}
 
     /// <summary>
@@ -192,7 +231,16 @@ public class PlayerController : MonoBehaviour {
             return DirectionState.FRONT;
     }
 
-    /*----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------*/
+    /// <summary>
+    /// ボタンが押されたか離されたか
+    /// </summary>
+    public void OnDirectionButton(bool isPush)
+    {
+        isDirectionMode = isPush;
+    }
+
+    //----------以下イベント関数（ボタン(Manager経由も含む)、アニメーションなど）----------
+
 
     /// <summary>
     /// アクションモーション入る前に呼び出す関数
@@ -202,7 +250,7 @@ public class PlayerController : MonoBehaviour {
         isAttack = true;
         anim.SetBool("attack",isAttack);
         iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
-        Debug.Log("攻撃開始");
+        //Debug.Log("攻撃開始");
     }
 
     /// <summary>
@@ -210,7 +258,8 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionMotion()
     {
-        SendFroundBlock();
+        if(isMine)
+            SendFroundBlock();
         iTween.RotateTo(gameObject, iTween.Hash("x", 0, "islocal", true, "time", 0.5f));
     }
 
@@ -220,7 +269,7 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionMotionExit()
     {
-        Debug.Log("ABunton" + isPushAttackButton);
+        //Debug.Log("ABunton" + isPushAttackButton);
         isAttack = false;
         if (isPushAttackButton){
             OnActionMotionEnter();
@@ -233,28 +282,21 @@ public class PlayerController : MonoBehaviour {
         //if(isPushAttackButton)
         //    anim.SetTrigger("Attack");
     }
-
-    /// <summary>
-    /// ボタンが押されたか離されたか
-    /// </summary>
-    public void OnDirectionButton(bool isPush)
-    {
-        isDirectionMode = isPush;
-    }
+    
 
     /// <summary>
     /// UIManagerからアクションボタンが押された、離されたときに呼び出される
     /// </summary>
     public void OnActionButton(bool isPush)
     {
-        Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
+        //Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
         isPushAttackButton = isPush;
         if (!isAttack && isPush)
         {
             OnActionMotionEnter();
         }
     }
-
+    
 }
 
 

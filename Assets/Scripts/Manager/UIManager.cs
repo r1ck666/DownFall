@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UIManager : SingletonMonoBehaviour<UIManager> {
 
     private PlayerController playerController;
+    //private PlayerAnimationControll playerAnimationController;
     [SerializeField]
     private Text limitTimeText;
 
@@ -18,10 +19,10 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 	void Start () {
         //SetPlayer();
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-		
+
 	}
 
     public void OnDirectionButton(bool isPush)
@@ -40,7 +41,9 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
     }
 
     public void SetPlayer(){
-        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        playerController = playerObj.GetComponent<PlayerController>();
+        //playerAnimationController = playerObj.GetComponent<PlayerAnimationControll>();
     }
 
 }

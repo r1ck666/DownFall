@@ -9,13 +9,15 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
     private Quaternion correctPlayerRot = Quaternion.identity;
 
     private PlayerController playerController;
+    private Animator animator;
 
     private bool isMine;
 
 	void Awake () {
         isMine = photonView.isMine;
         playerController = GetComponent<PlayerController>();
-        playerController.enabled = isMine;
+        animator = GetComponent<Animator>();
+        SetMine(isMine);
         if (isMine)
             gameObject.tag = "Player";
         else
@@ -43,14 +45,22 @@ public class PlayerNetworkController : Photon.MonoBehaviour{
         {
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
+            stream.SendNext(animator.GetBool("Run"));
+            stream.SendNext(animator.GetBool("attack"));
         }
         //ネットワークプレイヤーのデータを受信
         else
         {
             correctPlayerPos = (Vector3)stream.ReceiveNext();
             correctPlayerRot = (Quaternion)stream.ReceiveNext();
+            animator.SetBool("Run",(bool)stream.ReceiveNext());
+            animator.SetBool("attack",(bool)stream.ReceiveNext());
         }
     }
 
+    void SetMine(bool isMe)
+    {
+        playerController.IsMine = isMe;
+    }
 
 }

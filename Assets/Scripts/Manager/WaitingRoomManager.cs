@@ -12,11 +12,15 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 	[SerializeField] Text[] player_Text;
 
 	[SerializeField] Text roomName;
+
 	[SerializeField] GameObject gameStartButton;
+	[SerializeField] Text gameStartButtonText;
 	[SerializeField] GameObject nameField;
 	[SerializeField] InputField inputNameField;
 
 	int playerCount;
+	int maxPlayers;
+	bool isOpenUI = false;
 
 	protected override void Awake () {
 		base.Awake();
@@ -30,6 +34,14 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 
 	}
 
+	void Update() {
+		if (isOpenUI) {
+			UpdatePlayerUI();
+			ActiveObject();
+		}
+	}
+
+
 	//================================
 	// UI関連
 	//================================
@@ -37,16 +49,18 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 		foreach (GameObject playerObject in playerObjects){
 			playerObject.SetActive(false);
 		}
+		isOpenUI = false;
 		gameStartButton.SetActive(false);
 		nameField.SetActive(false);
 		playerUI.SetActive(false);
 		roomName.text = "Room "+ PhotonNetwork.room.name;
+		maxPlayers = PhotonNetwork.room.maxPlayers;
 	}
 
 	public void SetUserName() {
 		PhotonNetwork.player.name = inputNameField.text;
 		nameField.SetActive(false);
-		UpdatePlayerUI();
+		OpenPlayerUI();
 	}
 
 	void ActiveNameField() {
@@ -54,11 +68,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 		iTween.ScaleFrom(nameField, iTween.Hash("x", 0, "y", 0, "z", 0));
 	}
 
-	public void UpdatePlayerUI() {
-
-		var playerList = PhotonNetwork.playerList;
-		playerCount = PhotonNetwork.room.playerCount;
-
+	void OpenPlayerUI() {
 		playerUI.SetActive(true);
 		iTween.ScaleFrom(playerUI, iTween.Hash(
 				"x", 0,
@@ -67,14 +77,27 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 				"oncomplete", "ActiveObject",
 				"oncompletetarget", this.gameObject
 			));
+		gameStartButton.SetActive(true);
+	}
 
+	public void UpdatePlayerUI() {
+
+		var playerList = PhotonNetwork.playerList;
+		playerCount = PhotonNetwork.room.playerCount;
+		gameStartButtonText.text = playerCount + " / " + maxPlayers;
 
 		for (int i = 0; i < playerCount; i++ ) {
 			player_Text[i].text = "PlayerName:\n" + playerList[i].name;
 		}
+
+		if (PhotonNetwork.player.isMasterClient && PhotonNetwork.room.maxPlayers == PhotonNetwork.room.playerCount) {
+			gameStartButtonText.text = "GameStart!";
+		}
+
 	}
 
 	public void ActiveObject() {
+		isOpenUI = true;
 		for (int i = 0; i < playerCount; i++ ) {
 			playerObjects[i].SetActive(true);
 		}
@@ -82,7 +105,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 
 	public void GameStart() {
 		var room = PhotonNetwork.room;
-		if ( room.maxPlayers == room.playerCount ) {
+		if ( PhotonNetwork.player.isMasterClient && room.maxPlayers == room.playerCount ) {
 			PhotonNetwork.isMessageQueueRunning = false;
 			PhotonNetwork.LoadLevel("NormalGame_" + room.name);
 		} else {
