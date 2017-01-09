@@ -56,8 +56,6 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	int[] dicX = new int[] {0, 0, -1, 1};
 	int[] dicZ = new int[] {1, -1, 0, 0};
 
-	//public List<int> fallX;
-	//public List<int> fallZ;
 
 	//================================
 	// UI関連
