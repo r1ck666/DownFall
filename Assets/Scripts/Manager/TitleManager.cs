@@ -142,7 +142,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	{
     	DebugLogger.Log("TitleManger: OnJoinedRoom() called by PUN. Now this client is in a room.");
 		PhotonNetwork.isMessageQueueRunning = false;
-		PhotonNetwork.LoadLevel(1);
+		PhotonNetwork.LoadLevel("WaitingRoom");
 	}
 
 	public override void OnPhotonJoinRoomFailed(object[] codAndMsg)
