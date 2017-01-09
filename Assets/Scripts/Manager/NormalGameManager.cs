@@ -84,6 +84,10 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     			InitializePlayer();
 		}
 
+		if (PhotonNetwork.player.isMasterClient){
+			PhotonNetwork.automaticallySyncScene = false;
+		}
+
 	}
 
 	//================================

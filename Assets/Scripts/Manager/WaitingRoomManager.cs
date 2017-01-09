@@ -106,6 +106,8 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 	public void GameStart() {
 		var room = PhotonNetwork.room;
 		if ( PhotonNetwork.player.isMasterClient && room.maxPlayers == room.playerCount ) {
+
+			PhotonNetwork.automaticallySyncScene = true;
 			PhotonNetwork.isMessageQueueRunning = false;
 			PhotonNetwork.LoadLevel("NormalGame_" + room.name);
 		} else {
