@@ -35,17 +35,11 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	// プロパティ宣言
 	Stage stage;
-	public Stage Stage {
-		get { return stage; }
-	}
+	public Stage Stage { get { return stage; } }
 	uint[,,] blocks;
-	public uint[,,] Blocks {
-		get { return blocks; }
-	}
+	public uint[,,] Blocks { get { return blocks; } }
 	Block[,,] blocksObject;
-	public Block[,,] BlocksObject {
-		get { return blocksObject; }
-	}
+	public Block[,,] BlocksObject { get { return blocksObject; } }
 
 	// ブロック耐久度
 	[SerializeField] readonly int DURABILITY_NONE = 3;
@@ -99,7 +93,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	// 入室・退室処理
 	//================================
 
-	public override  void OnLeftRoom()
+	public override void OnLeftRoom()
 	{
 		SceneManager.LoadScene(0);
 	}
@@ -330,7 +324,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	*/
 
 	//================================
-	// 落下処理２
+	// 落下処理２（こっちを採用）
 	//================================
 
 	/// <summary>
