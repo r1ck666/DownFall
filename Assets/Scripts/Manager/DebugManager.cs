@@ -17,6 +17,10 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	// ===============================
 	[SerializeField, HeaderAttribute("TitleManager")] GameObject titleUI;
 	// ===============================
+	// WaitingRoomManager
+	// ===============================
+	[SerializeField, HeaderAttribute("WaitingRoomManager")] GameObject waitingUI;
+	// ===============================
 	// NormalGameManager
 	// ===============================
 	[SerializeField, HeaderAttribute("NormalGameManager")] GameObject normalUI;
@@ -51,6 +55,14 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 			debugUI.SetActive (false);
 		} else {
 			debugUI.SetActive (true);
+		}
+	}
+
+	public void SetActivePublicUI () {
+		if (publicUI.activeSelf) {
+			publicUI.SetActive(false);
+		} else {
+			publicUI.SetActive(true);
 		}
 	}
 
@@ -96,6 +108,23 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 		} else {
 			debugText.text = "あなたはどのルームにも所属していません";
 		}
+	}
+
+	// ===============================
+	// WaitingRoom Method
+	// ===============================
+	public void SetActiveWaitingUI () {
+		if (waitingUI.activeSelf) {
+			waitingUI.SetActive(false);
+		} else {
+			waitingUI.SetActive(true);
+		}
+	}
+
+	public void GameStart() {
+		var room = PhotonNetwork.room;
+		PhotonNetwork.isMessageQueueRunning = false;
+		PhotonNetwork.LoadLevel("NormalGame_" + room.name);
 	}
 
 	// ===============================
