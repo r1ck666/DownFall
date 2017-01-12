@@ -142,7 +142,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 		var camera = Camera.main.GetComponent<FollowCamera>();
 		camera.LookTarget = player.transform;
-		//camera.HorizontalAngle = stage.StartPosition[playerNum, 4];
+		camera.HorizontalAngle = stage.StartPosition[playerNum, 4];
 		UIManager.Instance.SetPlayer();
 	}
 
