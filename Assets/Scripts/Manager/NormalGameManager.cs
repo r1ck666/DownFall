@@ -138,7 +138,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		var startPos = new Vector3(stage.StartPosition[playerNum, 0], stage.StartPosition[playerNum, 1], stage.StartPosition[playerNum, 2]);
 		var startRot = Quaternion.Euler(stage.StartPosition[playerNum, 3], stage.StartPosition[playerNum, 4], stage.StartPosition[playerNum, 5]);
 		player = PhotonNetwork.Instantiate(playerPrefab.name, startPos, startRot, 0);
-		player.IsPlay = false;
+		player.GetComponent<PlayerController>().IsPlay = false;
 
 		var camera = Camera.main.GetComponent<FollowCamera>();
 		camera.LookTarget = player.transform;
@@ -167,19 +167,19 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		while (true) {
 			UIManager.Instance.SetLimitTime(count);
 			yield return null;
-			count -= Time.deltaTime();
+			count -= Time.deltaTime;
 			if (count < 0 ) break;
 		}
 		GameEnd();
 	}
 
 	void GameStart () {
-		player.IsPlay = true;
+		player.GetComponent<PlayerController>().IsPlay = true;
 		StartCoroutine(LimitTime());
 	}
 
 	void GameEnd () {
-		player.IsPlay = false;
+		player.GetComponent<PlayerController>().IsPlay = false;
 	}
 
 
