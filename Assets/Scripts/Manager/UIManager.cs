@@ -7,8 +7,8 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 
     private PlayerController playerController;
     //private PlayerAnimationControll playerAnimationController;
-    [SerializeField]
-    private Text limitTimeText;
+    [SerializeField] private Text limitTimeText;
+    [SerializeField] Text timeCount;
 
     protected override void Awake()
     {
@@ -37,13 +37,31 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 
     public void SetLimitTime(float time)
     {
-        limitTimeText.text = time.ToString();
+        limitTimeText.text = ((int)time).ToString();
     }
 
     public void SetPlayer(){
         var playerObj = GameObject.FindGameObjectWithTag("Player");
         playerController = playerObj.GetComponent<PlayerController>();
         //playerAnimationController = playerObj.GetComponent<PlayerAnimationControll>();
+    }
+
+    public void TimeCount (string count) {
+        timeCount.transform.parent.gameObject.SetActive(true);
+        timeCount.text = count;
+        iTween.ScaleFrom(timeCount.gameObject, iTween.Hash(
+				"x", 0,
+				"y", 0,
+				"z", 0,
+                "time", 1,
+				"oncomplete", "CloseTimeCount",
+				"oncompletetarget", this.gameObject
+			));
+    }
+
+    void CloseTimeCount() {
+        timeCount.text = "";
+        timeCount.transform.parent.gameObject.SetActive(false);
     }
 
 }
