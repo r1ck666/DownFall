@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     private bool isPlay;
-    public bool IsPlayer
+    public bool IsPlay
     {
         get
         {
@@ -82,7 +82,7 @@ public class PlayerController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         isPlay = false;
-        t = GameObject.Find("TestCanvas/test").GetComponent<Text>();
+        //t = GameObject.Find("TestCanvas/test").GetComponent<Text>();
         if (isMine)
         {
             maker = GameObject.FindGameObjectWithTag("Maker");
