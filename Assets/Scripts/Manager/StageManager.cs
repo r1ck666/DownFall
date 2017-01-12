@@ -21,7 +21,8 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 		base.Awake();
 		string stageData = ResourcesLoad ("TestMap");
 		stage = MapLoad(stageData);
-		MapCreate(stage);
+		CreateMap(stage);
+		CreateDeadArea(stage);
 	}
 
 	string ResourcesLoad (string mapName)
@@ -85,7 +86,7 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 		return new Stage(stageName, x, y, z, startPosition, blocks);
 	}
 
-	void MapCreate( Stage stage )
+	void CreateMap ( Stage stage )
 	{
 		stageObject = new GameObject("Stage");
 		blocksObject = new Block[stage.X, stage.Y, stage.Z];
@@ -98,6 +99,16 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 				}
 			}
 		}
+	}
+
+	void CreateDeadArea ( Stage stage )
+	{
+		var deadArea = new GameObject("DeadArea");
+		deadArea.transform.parent = stageObject.transform;
+		deadArea.AddComponent<BoxCollider>();
+		deadArea.GetComponent<BoxCollider>().size = new Vector3(stage.X*10, 1, stage.Z*10);
+		deadArea.transform.position = new Vector3(0, -10, 0);
+		deadArea.tag = "DeadArea";
 	}
 
 

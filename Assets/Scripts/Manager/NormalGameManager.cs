@@ -14,6 +14,9 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	[SerializeField] GameObject player;
 	// プレイヤーの番号
 	[SerializeField] int playerNum;
+	public int PlayerNum {
+		get { return playerNum; }
+	}
 
 	//================================
 	// GameRole関連
@@ -29,6 +32,8 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	[SerializeField] int preCount = 5;
 	// 同期時間周期
 	[SerializeField] float timePeriod = 10.0f;
+	// プレイヤーが死んでいるかどうか
+	bool[] isDead;
 
 	//================================
 	// StageManager関連
@@ -162,6 +167,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		GameStart();
 	}
 
+
 	IEnumerator LimitTime () {
 		float count = limitTime;
 		while (true) {
@@ -180,6 +186,10 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	void GameEnd () {
 		player.GetComponent<PlayerController>().IsPlay = false;
+	}
+
+	public void PlayerDead (int playerNum) {
+		
 	}
 
 
