@@ -12,22 +12,23 @@ public class Stage  {
 	uint z;
 	public uint Z { get { return z; } }
 
-	uint[,,] blocks;
+	int[,] startPosition;
+	public int[,] StartPosition { get { return startPosition; } }
 
-	public uint[,,] GetBlocks() {
-		return blocks;
-	}
+	uint[,,] blocks;
+	public uint[,,] Blocks { get { return blocks; } }
 
 	public uint this[uint x, uint y, uint z]
     {
         get { return this.blocks[x, y, z]; }
     }
 
-	public Stage (string stageName, uint x, uint y, uint z, uint[,,] blocks) {
+	public Stage (string stageName, uint x, uint y, uint z, int[,] startPosition, uint[,,] blocks) {
 		this.stageName = stageName;
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.startPosition = startPosition;
 		this.blocks = blocks;
 	}
 }

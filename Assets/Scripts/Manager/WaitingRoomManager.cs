@@ -18,6 +18,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 	[SerializeField] GameObject roomMenu;
 	[SerializeField] Text[] roomText;
 	[SerializeField] GameObject[] roomCharacter;
+	// メニューが表示されているかどうか
 	bool isMenu = false;
 
 	/// <summary>

@@ -4,12 +4,23 @@ using System.Collections;
 public class FollowCamera : MonoBehaviour {
 	public float distance = 5.0f;
 	[SerializeField] private float horizontalAngle = 0;
+	public float HorizontalAngle {
+		get { return horizontalAngle; }
+		set { horizontalAngle = value; }
+	}
+
 	[SerializeField] private float verticalAngle = 70;
+	public float VerticalAngle {
+		get { return verticalAngle; }
+		set { verticalAngle = value; }
+	}
+
 	[SerializeField] Transform lookTarget;
 	public Transform LookTarget {
 		get { return lookTarget; }
 		set { lookTarget = value; }
 	}
+
 	public Vector3 offset = Vector3.zero;
 
 	// Update is called once per frame
@@ -27,6 +38,5 @@ public class FollowCamera : MonoBehaviour {
 			transform.LookAt(lookPosition);
 
 		}
-
 	}
 }

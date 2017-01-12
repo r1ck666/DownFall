@@ -5,18 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager> {
 
-	//================================
-	// Network設定関連
-	//================================
-	string _gameVersion = "1";
 
 	//================================
 	// Character関連
 	//================================
 
 	[SerializeField] GameObject playerPrefab;
-	[SerializeField] GameObject mainCamera;
 	[SerializeField] GameObject player;
+	// プレイヤーの番号
+	[SerializeField] int playerNum;
 
 	//================================
 	// GameRole関連
@@ -68,14 +65,15 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	{
 		base.Awake();
 		PhotonNetwork.isMessageQueueRunning = true;
+		PhotonNetwork.automaticallySyncScene = false;
 	}
 
 	void Start()
 	{
 		// Stage関連のキャッシュ
-		stage = StageManager.Instance.GetStage();
-		blocks = stage.GetBlocks();
-		blocksObject = StageManager.Instance.GetBlocksObject();
+		stage = StageManager.Instance.Stage;
+		blocks = stage.Blocks;
+		blocksObject = StageManager.Instance.BlocksObject;
 
 		//PhotonInstantiate
 		if (playerPrefab == null) {
@@ -84,9 +82,6 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     			InitializePlayer();
 		}
 
-		if (PhotonNetwork.player.isMasterClient){
-			PhotonNetwork.automaticallySyncScene = false;
-		}
 
 	}
 
@@ -132,8 +127,35 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	//================================
 
 	void InitializePlayer() {
-		player = PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(5, 1, 5), Quaternion.identity, 0);
-		mainCamera.GetComponent<FollowCamera>().LookTarget = player.transform;
+		var playerList = PhotonNetwork.playerList;
+		var playerCount = PhotonNetwork.room.PlayerCount;
+
+		// PlayerListのソート
+		for (int i = 0; i < playerCount-1; i++) {
+			for(int j=0; j < playerCount-1 - i; j++ ) {
+				if (playerList[j].ID > playerList[j+1].ID){
+					var temp = playerList[j];
+					playerList[j] = playerList[j+1];
+					playerList[j+1] = temp;
+				}
+			}
+		}
+
+		for (int i = 0; i < playerCount; i++ ){
+			if (playerList[i] == PhotonNetwork.player) {
+				playerNum = i;
+				break;
+			}
+		}
+
+		// Stageクラスの初期位置を読み込み
+		var startPos = new Vector3(stage.StartPosition[playerNum, 0], stage.StartPosition[playerNum, 1], stage.StartPosition[playerNum, 2]);
+		var startRot = Quaternion.Euler(stage.StartPosition[playerNum, 3], stage.StartPosition[playerNum, 4], stage.StartPosition[playerNum, 5]);
+		player = PhotonNetwork.Instantiate(playerPrefab.name, startPos, startRot, 0);
+
+		var camera = Camera.main.GetComponent<FollowCamera>();
+		camera.LookTarget = player.transform;
+		//camera.HorizontalAngle = stage.StartPosition[playerNum, 4];
 		UIManager.Instance.SetPlayer();
 	}
 

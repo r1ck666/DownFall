@@ -9,25 +9,19 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 
 	//　現在選択中のステージ
 	Stage stage;
+	public Stage Stage { get { return stage; } }
 	// Stageが格納されているオブジェクト
 	GameObject stageObject;
 	// BlockのPrefabが格納されているリスト
 	List<GameObject> blockList;
 	Block[,,] blocksObject;
+	public Block[,,] BlocksObject { get { return blocksObject; } }
 
 	protected override void Awake() {
 		base.Awake();
 		string stageData = ResourcesLoad ("TestMap");
 		stage = MapLoad(stageData);
 		MapCreate(stage);
-	}
-
-	public Stage GetStage() {
-		return stage;
-	}
-
-	public Block[,,] GetBlocksObject() {
-		return blocksObject;
 	}
 
 	string ResourcesLoad (string mapName)
@@ -62,12 +56,23 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 		uint y = stageSize[1];
 		uint z = stageSize[2];
 
+		//初期位置の読み込み（posX, posY, posZ, rotX, rotY, rotZ)...オイラー角計算
+		uint startPositionSize = uint.Parse(lines[2]);
+	 	int[,] startPosition = new int[startPositionSize, 6];
+
+		for (uint i = 0; i < startPositionSize; i++) {
+			var startTemp = lines[3+i].Split(' ').Select(start => int.Parse(start)).ToArray();
+			for (uint j = 0; j < 6; j++) {
+				startPosition[i, j] = startTemp[j];
+			}
+		}
+
 		uint[,,] blocks = new uint[x, y, z];
 
 		// ステージデータの読み込み
 		for (uint j = 0; j < y; j++) {
 			for (uint k = 0; k < z; k++) {
-				var xLine = lines[j * z + k + 2]
+				var xLine = lines[j * z + k + 3 + startPositionSize]	//これまでに読み込んだ行を足してる
 							.Split(new[] {' '}, System.StringSplitOptions.RemoveEmptyEntries)
 							.Select(l => uint.Parse(l)).ToArray();
 				for (uint i = 0; i < x; i++) {
@@ -77,7 +82,7 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 		}
 		stageData = null;	//メモリ解放
 
-		return new Stage(stageName, x, y, z, blocks);
+		return new Stage(stageName, x, y, z, startPosition, blocks);
 	}
 
 	void MapCreate( Stage stage )
