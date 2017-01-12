@@ -106,19 +106,24 @@ public class PlayerController : MonoBehaviour {
                     }
                     break;
                 case TouchInfo.Ended:
-                    anim.SetBool("Run", false);
-                    //anim.SetBool("attack", false);
-                    isPushAttackButton = false;
+                    ResetPosition();
                     break;
                 case TouchInfo.Canceled:
-                    anim.SetBool("Run", false);
-                    //anim.SetBool("attack", false);
-                    isPushAttackButton = false;
+                    ResetPosition();
                     break;
             }
             Maker();
         }
 	}
+
+    void ResetPosition()
+    {
+        anim.SetBool("Run", false);
+        //anim.SetBool("attack", false);
+        touchBeginePos.Set(0,0,0);
+        touchDistancePos.Set(0,0,0);
+        isPushAttackButton = false;
+    }
 
     /// <summary>
     /// マーカー目の前に出す
