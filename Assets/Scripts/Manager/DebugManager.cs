@@ -86,23 +86,23 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	{
 		var player = PhotonNetwork.player;
 		debugText.text = "PlayerID: " + player.ID.ToString() + "\n"
-						+ "PlayerName: " + player.name + "\n"
-						+ "UserID: " + player.userId + "\n"
-						+ "isMasterClient: " + player.isMasterClient.ToString() + "\n";
+						+ "PlayerName: " + player.NickName + "\n"
+						+ "UserID: " + player.UserId + "\n"
+						+ "isMasterClient: " + player.IsMasterClient.ToString() + "\n";
 	}
 
 	void ShowNowRoomProperty()
 	{
 		var room = PhotonNetwork.room;
 		if (room != null) {
-			debugText.text = "現在いるルーム名: " + room.name + "\n"
-							+ "現在いるルームの人数: " + room.playerCount.ToString() + "\n"
-							+ "現在いるルームの最大人数 :" + room.maxPlayers.ToString() + "\n"
-							+ "現在いるルームのMaster: " + PhotonNetwork.masterClient.name + "\n";
+			debugText.text = "現在いるルーム名: " + room.Name + "\n"
+							+ "現在いるルームの人数: " + room.PlayerCount.ToString() + "\n"
+							+ "現在いるルームの最大人数 :" + room.MaxPlayers.ToString() + "\n"
+							+ "現在いるルームのMaster: " + PhotonNetwork.masterClient.NickName + "\n";
 			debugText.text += "現在ルームにいるPlayer(ID: , Name: ): " + "\n";
 			var playerList = PhotonNetwork.playerList;
 			foreach (var player in playerList){
-				debugText.text += "ID: " + player.ID.ToString() + "Name: " + player.name + "\n";
+				debugText.text += "ID: " + player.ID.ToString() + "Name: " + player.NickName + "\n";
 			}
 			debugText.text += "\n";
 		} else {
@@ -124,7 +124,7 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	public void GameStart() {
 		var room = PhotonNetwork.room;
 		PhotonNetwork.isMessageQueueRunning = false;
-		PhotonNetwork.LoadLevel("NormalGame_" + room.name);
+		PhotonNetwork.LoadLevel("NormalGame_" + room.Name);
 	}
 
 	// ===============================

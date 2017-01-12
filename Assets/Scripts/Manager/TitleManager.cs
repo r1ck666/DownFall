@@ -31,9 +31,10 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	[SerializeField] Text gameVersionLabel;
 
 	/// <summary>
-	/// エラーログを表示するラベル
+	/// エラーログを表示するウィンドウ
 	/// </summary>
-	[SerializeField] Text errorDialog;
+	[SerializeField] GameObject errorDialog;
+	[SerializeField] Text errorText;
 
 	/// <summary>
 	/// ルーム選択画面のメニュー
@@ -42,9 +43,10 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	[SerializeField] Text[] menuText;
 
 	/// <summary>
-	/// 現在選択中のゲームシーンのNo.
+	/// 名前入力ウィンドウ
 	/// </summary>
-	int sceneNum = 0;
+	[SerializeField] GameObject nameField;
+	[SerializeField] InputField inputNameField;
 
 	RoomInfo[] roomInfo;
 
@@ -56,12 +58,11 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		// #NotImportant
         PhotonNetwork.logLevel = Loglevel;
 
-		// #Critical
-        // we don't join the lobby. There is no need to join a lobby to get the list of rooms.
+        // 自動でロビーに入るかどうかを設定します
         PhotonNetwork.autoJoinLobby = false;
 
 		// #Critical
-        // this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
+        // マスタークライアントに合わせて同じルームのプレイヤーがシーンをロードするかを決めます
         PhotonNetwork.automaticallySyncScene = false;
 
 	}
@@ -82,16 +83,15 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	/// </summary>
 	public void InitializeUI() {
 		playStart.SetActive(true);
+		nameField.SetActive(false);
 		progressLabel.SetActive(false);
 		menu.SetActive(false);
 		gameVersionLabel.transform.parent.gameObject.SetActive(true);
-		errorDialog.transform.parent.gameObject.SetActive(false);
+		errorDialog.SetActive(false);
 	}
 
     /// <summary>
-    /// Start the connection process.
-    /// - If already connected, we attempt joining a random room
-    /// - if not yet connected, Connect this application instance to Photon Cloud Network
+    /// ロビーに接続します
     /// </summary>
     public void Connect()
     {
@@ -123,10 +123,11 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		DebugLogger.Log("TitleManager: OnJoinedLobby() was called by PUN");
 		if ( isPlay ) {
 			isPlay = false;
-			menu.SetActive(true);
-			iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
-			progressLabel.SetActive(false);
-			UpdateRoomInfo();
+			if (PhotonNetwork.player.NickName == "") {
+				OpenNameField();
+			} else {
+				OpenMenu();
+			}
 		} else {
 			InitializeUI();
 		}
@@ -154,10 +155,39 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	public override void OnPhotonJoinRoomFailed(object[] codAndMsg)
 	{
 		DebugLogger.Log("TitleManger: OnPhotonJoinRoomFailed() called by PUN");
-		ErrorDialog ("ルームの接続に失敗しました。");
+		OpenErrorDialog ("ルームの接続に失敗しました。");
 
 	}
 
+
+	/// <summary>
+    /// 名前入力欄を表示します
+    /// </summary>
+	public void OpenNameField() {
+		nameField.SetActive(true);
+		iTween.ScaleFrom(nameField, iTween.Hash("x", 0, "y", 0, "z", 0));
+		progressLabel.SetActive(false);
+	}
+
+	/// <summary>
+    /// 名前をPhotonServerに送ります
+    /// </summary>
+	public void SubmitName() {
+		progressLabel.SetActive(true);
+		PhotonNetwork.player.NickName = inputNameField.text;
+		nameField.SetActive(false);
+		OpenMenu();
+	}
+
+	/// <summary>
+    /// MainMenuを表示します
+    /// </summary>
+	public void OpenMenu() {
+		menu.SetActive(true);
+		iTween.ScaleFrom(menu, iTween.Hash("x", 0, "y", 0, "z", 0));
+		UpdateRoomInfo();
+		progressLabel.SetActive(false);
+	}
 
 	/// <summary>
     /// MenuButtonから呼び出してルームに接続します
@@ -166,24 +196,16 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		progressLabel.SetActive(true);
 		switch (n) {
 			case 2:
-				if (PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { maxPlayers = 2 }, null)){
-					sceneNum = 1;
-				}
+				PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { MaxPlayers = 2 }, null);
 				break;
 			case 4:
-				if (PhotonNetwork.JoinOrCreateRoom("4", new RoomOptions { maxPlayers = 4 }, null)) {
-					sceneNum = 2;
-				}
+				PhotonNetwork.JoinOrCreateRoom("4", new RoomOptions { MaxPlayers = 4 }, null);
 				break;
 			case 6:
-				if (PhotonNetwork.JoinOrCreateRoom("6", new RoomOptions { maxPlayers = 6 }, null)) {
-					sceneNum = 3;
-				}
+				PhotonNetwork.JoinOrCreateRoom("6", new RoomOptions { MaxPlayers = 6 }, null);
 				break;
 			case 8:
-				if (PhotonNetwork.JoinOrCreateRoom("8", new RoomOptions { maxPlayers = 8 }, null)) {
-					sceneNum = 4;
-				}
+				PhotonNetwork.JoinOrCreateRoom("8", new RoomOptions { MaxPlayers = 8 }, null);
 				break;
 		}
 	}
@@ -195,17 +217,28 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 		roomInfo = PhotonNetwork.GetRoomList();
 		int[] counts = new int[] {0, 0, 0, 0};
 		foreach(RoomInfo info in roomInfo){
-			int n = int.Parse(info.name);
-			counts[n/2-1] = info.playerCount;
+			int n = int.Parse(info.Name);
+			counts[n/2-1] = info.PlayerCount;
 		}
 		for (int i=0; i<4; i++) {
 			menuText[i].text = "現在の人数： " + counts[i].ToString() + " / " + ((i+1)*2).ToString();
 		}
 	}
 
-	public void ErrorDialog (string mes) {
-		errorDialog.transform.parent.gameObject.SetActive(true);
-		errorDialog.text = mes;
+	/// <summary>
+    /// エラーダイアログを表示します
+    /// </summary>
+	public void OpenErrorDialog (string mes) {
+		errorDialog.SetActive(true);
+		errorText.text = mes;
+	}
+
+	/// <summary>
+    /// エラーダイアログを閉じます
+    /// </summary>
+	public void CloseErrorDialog(){
+		errorDialog.SetActive(false);
+		errorText.text = "";
 	}
 
 }

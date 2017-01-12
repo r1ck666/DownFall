@@ -13,14 +13,24 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 
 	[SerializeField] Text roomName;
 
+	/// <summary>
+	/// ゲームスタートボタン
+	/// </summary>
 	[SerializeField] GameObject gameStartButton;
 	[SerializeField] Text gameStartButtonText;
-	[SerializeField] GameObject nameField;
-	[SerializeField] InputField inputNameField;
 
+	/// <summary>
+	/// エラーログを表示するウィンドウ
+	/// </summary>
+	[SerializeField] GameObject errorDialog;
+	[SerializeField] Text errorText;
+
+	/// <summary>
+	/// PhotonNetwork関連の変数
+	/// </summary>
+	PhotonPlayer[] playerList;
 	int playerCount;
 	int maxPlayers;
-	bool isOpenUI = false;
 
 	protected override void Awake () {
 		base.Awake();
@@ -31,15 +41,11 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 	// Use this for initialization
 	void Start () {
 		InitializeUI();
-		ActiveNameField();
-
+		OpenPlayerUI();
 	}
 
 	void Update() {
-		if (isOpenUI) {
-			UpdatePlayerUI();
-			ActiveObject();
-		}
+		UpdatePlayerUI();
 	}
 
 
@@ -50,23 +56,10 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 		foreach (GameObject playerObject in playerObjects){
 			playerObject.SetActive(false);
 		}
-		isOpenUI = false;
+		if (playerUI != null) playerUI.SetActive(false);
 		gameStartButton.SetActive(false);
-		nameField.SetActive(false);
-		playerUI.SetActive(false);
-		roomName.text = "Room "+ PhotonNetwork.room.name;
-		maxPlayers = PhotonNetwork.room.maxPlayers;
-	}
-
-	public void SetUserName() {
-		PhotonNetwork.player.name = inputNameField.text;
-		nameField.SetActive(false);
-		OpenPlayerUI();
-	}
-
-	void ActiveNameField() {
-		nameField.SetActive(true);
-		iTween.ScaleFrom(nameField, iTween.Hash("x", 0, "y", 0, "z", 0));
+		roomName.text = "Room "+ PhotonNetwork.room.Name;
+		maxPlayers = PhotonNetwork.room.MaxPlayers;
 	}
 
 	void OpenPlayerUI() {
@@ -83,22 +76,23 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 
 	public void UpdatePlayerUI() {
 
-		var playerList = PhotonNetwork.playerList;
+		if (playerList == PhotonNetwork.playerList) return;
+		playerList = PhotonNetwork.playerList;
 		playerCount = PhotonNetwork.room.playerCount;
 		gameStartButtonText.text = playerCount + " / " + maxPlayers;
 
 		for (int i = 0; i < playerCount; i++ ) {
-			player_Text[i].text = "PlayerName:\n" + playerList[i].name;
+			player_Text[i].text = "PlayerName:\n" + playerList[i].NickName;
 		}
 
-		if (PhotonNetwork.player.isMasterClient && PhotonNetwork.room.maxPlayers == PhotonNetwork.room.playerCount) {
+		// GameStart条件を満たした時だけGameStartを表示する
+		if (PhotonNetwork.player.IsMasterClient && PhotonNetwork.room.MaxPlayers == PhotonNetwork.room.playerCount) {
 			gameStartButtonText.text = "GameStart!";
 		}
 
 	}
 
 	public void ActiveObject() {
-		isOpenUI = true;
 		for (int i = 0; i < playerCount; i++ ) {
 			playerObjects[i].SetActive(true);
 		}
@@ -107,12 +101,28 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 	public void GameStart() {
 		var room = PhotonNetwork.room;
 		if ( PhotonNetwork.player.isMasterClient && room.maxPlayers == room.playerCount ) {
-
+			PhotonNetwork.room.open = false;	//誰も入れないようにルームを閉じます
 			PhotonNetwork.isMessageQueueRunning = false;
 			PhotonNetwork.LoadLevel("NormalGame_" + room.name);
 		} else {
 			DebugLogger.Log("ルームの人数が足りません");
 		}
+	}
+
+	/// <summary>
+    /// エラーダイアログを表示します
+    /// </summary>
+	public void OpenErrorDialog (string mes) {
+		errorDialog.SetActive(true);
+		errorText.text = mes;
+	}
+
+	/// <summary>
+    /// エラーダイアログを閉じます
+    /// </summary>
+	public void CloseErrorDialog(){
+		errorDialog.SetActive(false);
+		errorText.text = "";
 	}
 
 
