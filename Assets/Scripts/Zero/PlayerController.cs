@@ -143,6 +143,10 @@ public class PlayerController : MonoBehaviour {
                     break;
             }
             Maker();
+
+            //以下はスマホのみ、それ以外（エディターなど使用）はコメントアウトしてください
+            if (Input.touchCount < 1)
+                ResetPosition();
         }
 	}
 
@@ -183,6 +187,21 @@ public class PlayerController : MonoBehaviour {
         maker.transform.position = new Vector3(x,y-0.4f,z);
 
     }
+    /*
+    bool CheckGrounded()
+    {
+
+        RaycastHit hitCollider;
+        Vector3 playerPos = transform.position;
+        if (Physics.Linecast(playerPos , (playerPos - transform.up * 1.5f), out hitCollider))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    */
+
 
     /// <summary>
     /// 前に移動
@@ -324,13 +343,27 @@ public class PlayerController : MonoBehaviour {
     /// </summary>
     public void OnActionButton(bool isPush)
     {
-        //Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
-        isPushAttackButton = isPush;
-        if (!isAttack && isPush)
+        if (isPlay)
         {
-            OnActionMotionEnter();
+            //Debug.Log("isPush : " + isPush + " isAttack : " + isAttack);
+            isPushAttackButton = isPush;
+            if (!isAttack && isPush)
+            {
+                OnActionMotionEnter();
+            }
         }
     }
+
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "DeadArea")
+        {
+            isPlay = false;
+            NormalGameManager.Instance.PlayerDead(NormalGameManager.Instance.PlayerNum);
+        }
+    }
+
     
 }
 
