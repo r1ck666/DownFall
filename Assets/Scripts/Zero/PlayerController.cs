@@ -361,6 +361,7 @@ public class PlayerController : MonoBehaviour {
         {
             isPlay = false;
             NormalGameManager.Instance.PlayerDead(NormalGameManager.Instance.PlayerNum);
+            gameObject.SetActive(false);
         }
     }
 
