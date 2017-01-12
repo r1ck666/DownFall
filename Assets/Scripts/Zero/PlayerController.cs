@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour {
@@ -63,8 +64,25 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    private bool isPlay;
+    public bool IsPlayer
+    {
+        get
+        {
+            return isPlay;
+        }
+        set
+        {
+            isPlay = value;
+        }
+    }
+
+    //private Text t;
+
 	// Use this for initialization
 	void Start () {
+        isPlay = false;
+        t = GameObject.Find("TestCanvas/test").GetComponent<Text>();
         if (isMine)
         {
             maker = GameObject.FindGameObjectWithTag("Maker");
@@ -82,6 +100,8 @@ public class PlayerController : MonoBehaviour {
     {
     }
 
+
+
 	// Update is called once per frame
 	void FixedUpdate () {
 
@@ -89,6 +109,8 @@ public class PlayerController : MonoBehaviour {
         {
 
             TouchInfo info = AppUtil.GetTouch();
+
+            //t.text = info.ToString();
 
             switch (info)
             {
@@ -98,6 +120,14 @@ public class PlayerController : MonoBehaviour {
 
                 case TouchInfo.Moved:
                     touchDistancePos = AppUtil.GetTouchPosition() - touchBeginePos;
+                    if (touchDistancePos.magnitude > needTapDistance && !isAttack)
+                    {
+                        SetDirection();
+                        if (!isDirectionMode)
+                            Move();
+                    }
+                    break;
+                case TouchInfo.Stationary:
                     if (touchDistancePos.magnitude > needTapDistance && !isAttack)
                     {
                         SetDirection();
