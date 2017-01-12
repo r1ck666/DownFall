@@ -58,12 +58,15 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 		}
 	}
 
+	void InitializeUI () {
+		publicUI.SetActive(false);
+		waitingUI.SetActive(false);
+		normalUI.SetActive(false);
+	}
+
 	public void SetActivePublicUI () {
-		if (publicUI.activeSelf) {
-			publicUI.SetActive(false);
-		} else {
-			publicUI.SetActive(true);
-		}
+		InitializeUI();
+		publicUI.SetActive(true);
 	}
 
 	public void SelectDropDown()
@@ -114,11 +117,9 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	// WaitingRoom Method
 	// ===============================
 	public void SetActiveWaitingUI () {
-		if (waitingUI.activeSelf) {
-			waitingUI.SetActive(false);
-		} else {
-			waitingUI.SetActive(true);
-		}
+		InitializeUI();
+		waitingUI.SetActive(true);
+
 	}
 
 	public void GameStart() {
@@ -131,11 +132,9 @@ public class DebugManager : SingletonPhotonMonoBehaviour<DebugManager> {
 	// NormalGame Method
 	// ===============================
 	public void SetActiveNormalUI() {
-		if (normalUI.activeSelf){
-			normalUI.SetActive (false);
-		} else {
-			normalUI.SetActive (true);
-		}
+		InitializeUI();
+		normalUI.SetActive (true);
+
 	}
 
 	public void ActionButton() {

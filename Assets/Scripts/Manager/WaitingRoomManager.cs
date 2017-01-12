@@ -126,6 +126,17 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 		playerCount = PhotonNetwork.room.PlayerCount;
 		gameStartButtonText.text = playerCount + " / " + maxPlayers;
 
+		// PlayerListのソート
+		for(int i = 0; i < playerCount-1; i++) {
+			for(int j=0; j < playerCount-1 - i; j++ ) {
+				if (playerList[j].ID > playerList[j+1].ID){
+					var temp = playerList[j];
+					playerList[j] = playerList[j+1];
+					playerList[j+1] = temp;
+				}
+			}
+		}
+
 		for (int i = 0; i < maxPlayers; i++ ) {
 
 			if (i < playerCount) {
@@ -153,7 +164,13 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 			PhotonNetwork.isMessageQueueRunning = false;
 			PhotonNetwork.LoadLevel("NormalGame_" + room.Name);
 		} else {
-			DebugLogger.Log("ルームの人数が足りません");
+			if (!PhotonNetwork.player.IsMasterClient){
+				OpenErrorDialog("ホストのみゲーム開始ができます");
+			}
+			if (room.MaxPlayers != room.PlayerCount ) {
+				OpenErrorDialog("ルームに人数が足りません");
+			}
+
 		}
 	}
 
