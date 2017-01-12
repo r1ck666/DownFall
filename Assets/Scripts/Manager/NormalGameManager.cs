@@ -20,11 +20,15 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	//================================
 
 	// 制限時間
-	[SerializeField] float timeLimit = 300f;
+	[SerializeField] float limitTime = 120.0f;
 	// 岩ブロック最大数
 	[SerializeField] readonly int ROCK_MAX = 10;
 	// プレイヤーのPower
 	[SerializeField] int power = 1;
+	// ゲーム開始カウント
+	[SerializeField] int preCount = 5;
+	// 同期時間周期
+	[SerializeField] float timePeriod = 10.0f;
 
 	//================================
 	// StageManager関連
@@ -65,7 +69,6 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	{
 		base.Awake();
 		PhotonNetwork.isMessageQueueRunning = true;
-		PhotonNetwork.automaticallySyncScene = false;
 	}
 
 	void Start()
@@ -82,6 +85,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     			InitializePlayer();
 		}
 
+		StartCoroutine(Ready());
 
 	}
 
@@ -100,32 +104,13 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		PhotonNetwork.LeaveRoom();
 	}
 
-	public override void OnPhotonPlayerConnected( PhotonPlayer other  )
-	{
-    	Debug.Log( "OnPhotonPlayerConnected() " + other.name ); // not seen if you're the player connecting
-
-    	if ( PhotonNetwork.isMasterClient )
-    	{
-        	Debug.Log( "OnPhotonPlayerConnected isMasterClient " + PhotonNetwork.isMasterClient ); // called before OnPhotonPlayerDisconnected
-
-    	}
-	}
-
-	public override void OnPhotonPlayerDisconnected( PhotonPlayer other  )
-	{
-    	Debug.Log( "OnPhotonPlayerDisconnected() " + other.name ); // seen when other disconnects
-
-    	if ( PhotonNetwork.isMasterClient )
-    	{
-        	Debug.Log( "OnPhotonPlayerConnected isMasterClient " + PhotonNetwork.isMasterClient ); // called before OnPhotonPlayerDisconnected
-
-    	}
-	}
-
 	//================================
 	// Character関連
 	//================================
 
+	/// <summary>
+    /// プレイヤーの情報などを初期化します
+    /// </summary>
 	void InitializePlayer() {
 		var playerList = PhotonNetwork.playerList;
 		var playerCount = PhotonNetwork.room.PlayerCount;
@@ -141,6 +126,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 			}
 		}
 
+		// Playerの番号を取得
 		for (int i = 0; i < playerCount; i++ ){
 			if (playerList[i] == PhotonNetwork.player) {
 				playerNum = i;
@@ -152,6 +138,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		var startPos = new Vector3(stage.StartPosition[playerNum, 0], stage.StartPosition[playerNum, 1], stage.StartPosition[playerNum, 2]);
 		var startRot = Quaternion.Euler(stage.StartPosition[playerNum, 3], stage.StartPosition[playerNum, 4], stage.StartPosition[playerNum, 5]);
 		player = PhotonNetwork.Instantiate(playerPrefab.name, startPos, startRot, 0);
+		player.IsPlay = false;
 
 		var camera = Camera.main.GetComponent<FollowCamera>();
 		camera.LookTarget = player.transform;
@@ -159,8 +146,42 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		UIManager.Instance.SetPlayer();
 	}
 
-	//もしかして参照しているから、チェンジしても反映されない？
-	// ChangeBlock後にChangeされているか確認しよう
+	//================================
+	// GameSystem関連
+	//================================
+
+	IEnumerator Ready () {
+		int count = preCount;
+		while (true) {
+			if (count <= 0) break;
+			UIManager.Instance.TimeCount(count.ToString());
+			count -= 1;
+			yield return new WaitForSeconds(1);
+		}
+		UIManager.Instance.TimeCount("GO!");
+		GameStart();
+	}
+
+	IEnumerator LimitTime () {
+		float count = limitTime;
+		while (true) {
+			UIManager.Instance.SetLimitTime(count);
+			yield return null;
+			count -= Time.deltaTime();
+			if (count < 0 ) break;
+		}
+		GameEnd();
+	}
+
+	void GameStart () {
+		player.IsPlay = true;
+		StartCoroutine(LimitTime());
+	}
+
+	void GameEnd () {
+		player.IsPlay = false;
+	}
+
 
 	/// <summary>
     /// ブロックを修復・破壊するメソッド

@@ -115,6 +115,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 				"oncompletetarget", this.gameObject
 			));
 		gameStartButton.SetActive(true);
+		progressLabel.SetActive(false);
 	}
 
 
@@ -123,6 +124,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 		isMenu = true;
 
 		if (playerList == PhotonNetwork.playerList) return;
+		progressLabel.SetActive(true);
 		playerList = PhotonNetwork.playerList;
 		playerCount = PhotonNetwork.room.PlayerCount;
 		gameStartButtonText.text = playerCount + " / " + maxPlayers;
@@ -156,6 +158,7 @@ public class WaitingRoomManager : SingletonPhotonMonoBehaviour<WaitingRoomManage
 			gameStartButtonText.text = "GameStart!";
 		}
 
+		progressLabel.SetActive(false);
 	}
 
 	public void GameStart() {
