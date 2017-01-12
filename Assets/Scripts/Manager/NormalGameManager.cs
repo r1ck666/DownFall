@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager> {
 
@@ -139,6 +140,9 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 			}
 		}
 
+		isDead = new bool[playerCount];
+		isDead.Select( isdead => isdead = false);
+
 		// Stageクラスの初期位置を読み込み
 		var startPos = new Vector3(stage.StartPosition[playerNum, 0], stage.StartPosition[playerNum, 1], stage.StartPosition[playerNum, 2]);
 		var startRot = Quaternion.Euler(stage.StartPosition[playerNum, 3], stage.StartPosition[playerNum, 4], stage.StartPosition[playerNum, 5]);
@@ -189,7 +193,22 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 	}
 
 	public void PlayerDead (int playerNum) {
-		
+		photonView.RPC("SyncIsDead", PhotonTargets.AllBufferedViaServer, playerNum);
+	}
+
+	void ChangeView (int playerNum) {
+		var enemies = GameObject.FindGameObjectsWithTag("Player");
+		//Camera.main.GetComponent<FollowCamera>().LookTarget =
+	}
+
+	[PunRPC]
+	void SyncIsDead(int playerNum) {
+		isDead[playerNum] = true;
+		/*
+		foreach (bool isdead in isDead) {
+
+		}
+		*/
 	}
 
 
