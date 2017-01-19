@@ -71,6 +71,7 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 	void Start() {
 		gameVersionLabel.text = "GameVersion: " + _gameVersion;
 		InitializeUI();
+		SoundManager.Instance.SoundBGM(SoundManager.Instance.BGM[0]);
 	}
 
 	void Update() {
@@ -199,13 +200,16 @@ public class TitleManager : SingletonPhotonMonoBehaviour<TitleManager> {
 				PhotonNetwork.JoinOrCreateRoom("2", new RoomOptions { MaxPlayers = 2 }, null);
 				break;
 			case 4:
-				PhotonNetwork.JoinOrCreateRoom("4", new RoomOptions { MaxPlayers = 4 }, null);
+				//PhotonNetwork.JoinOrCreateRoom("4", new RoomOptions { MaxPlayers = 4 }, null);
+				OpenErrorDialog("現在このルームに入ることはできません");
 				break;
 			case 6:
-				PhotonNetwork.JoinOrCreateRoom("6", new RoomOptions { MaxPlayers = 6 }, null);
+				//PhotonNetwork.JoinOrCreateRoom("6", new RoomOptions { MaxPlayers = 6 }, null);
+				OpenErrorDialog("現在このルームに入ることはできません");
 				break;
 			case 8:
-				PhotonNetwork.JoinOrCreateRoom("8", new RoomOptions { MaxPlayers = 8 }, null);
+				//PhotonNetwork.JoinOrCreateRoom("8", new RoomOptions { MaxPlayers = 8 }, null);
+				OpenErrorDialog("現在このルームに入ることはできません");
 				break;
 		}
 	}

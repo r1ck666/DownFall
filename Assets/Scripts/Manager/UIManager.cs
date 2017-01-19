@@ -9,6 +9,8 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
     //private PlayerAnimationControll playerAnimationController;
     [SerializeField] private Text limitTimeText;
     [SerializeField] Text timeCount;
+    [SerializeField] Text winnerName;
+    [SerializeField] GameObject gameEndButton;
 
     protected override void Awake()
     {
@@ -18,12 +20,20 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 	// Use this for initialization
 	void Start () {
         //SetPlayer();
+        InitializeUI();
+
 	}
 
 	// Update is called once per frame
 	void Update () {
 
 	}
+
+    void InitializeUI () {
+        gameEndButton.SetActive(false);
+        timeCount.transform.parent.gameObject.SetActive(false);
+        winnerName.transform.parent.gameObject.SetActive(false);
+    }
 
     public void OnDirectionButton(bool isPush)
     {
@@ -62,6 +72,12 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
     void CloseTimeCount() {
         timeCount.text = "";
         timeCount.transform.parent.gameObject.SetActive(false);
+    }
+
+    public void GameEnd(string name) {
+        winnerName.transform.parent.gameObject.SetActive(true);
+        winnerName.text = name;
+        gameEndButton.SetActive(true);
     }
 
 }

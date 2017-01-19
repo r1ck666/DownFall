@@ -6,8 +6,23 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager> {
 
     [SerializeField]
     private AudioSource seSource;
+    public AudioSource SeSource {
+        get { return seSource; }
+        set { seSource = value; }
+    }
+    
     [SerializeField]
     private AudioSource bgmSource;
+    [SerializeField]
+    private AudioClip[] se;
+    public AudioClip[] SE {
+        get { return se;}
+    }
+    [SerializeField]
+    private AudioClip[] bgm;
+    public AudioClip[] BGM {
+        get { return bgm; }
+    }
 
     protected override void Awake(){
         base.Awake();

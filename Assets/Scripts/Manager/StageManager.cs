@@ -107,6 +107,7 @@ public class StageManager : SingletonMonoBehaviour<StageManager> {
 		deadArea.transform.parent = stageObject.transform;
 		deadArea.AddComponent<BoxCollider>();
 		deadArea.GetComponent<BoxCollider>().size = new Vector3(stage.X*10, 1, stage.Z*10);
+		deadArea.GetComponent<BoxCollider>().isTrigger = true;
 		deadArea.transform.position = new Vector3(0, -10, 0);
 		deadArea.tag = "DeadArea";
 	}

@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour {
 
     [SerializeField]
     private GameObject maker;
-    
+
     //タップポジションの保管
     private Vector3 touchBeginePos;
     private Vector3 touchDistancePos;
@@ -76,6 +76,9 @@ public class PlayerController : MonoBehaviour {
             isPlay = value;
         }
     }
+
+    // AudioClip用の一時変数
+    int s = 0;
 
     //private Text t;
 
@@ -145,8 +148,11 @@ public class PlayerController : MonoBehaviour {
             Maker();
 
             //以下はスマホのみ、それ以外（エディターなど使用）はコメントアウトしてください
-            if (Input.touchCount < 1)
-                ResetPosition();
+            if (Application.platform == RuntimePlatform.IPhonePlayer ||
+                Application.platform == RuntimePlatform.Android) {
+                    if (Input.touchCount < 1)
+                        ResetPosition();
+            }
         }
 	}
 
@@ -259,7 +265,7 @@ public class PlayerController : MonoBehaviour {
         }
 
         NormalGameManager.Instance.ActionJudge((int)x,(int)z);
-        
+
     }
 
     public void ActionAnimation(AnimState aState)
@@ -305,6 +311,10 @@ public class PlayerController : MonoBehaviour {
         anim.SetBool("attack",isAttack);
         iTween.RotateTo(gameObject, iTween.Hash("x", 20, "islocal", true));
         //Debug.Log("攻撃開始");
+        // SE用
+        SoundManager.Instance.SoundSe(SoundManager.Instance.SE[s]);
+        s++;
+        if (s>2) s = 0;
     }
 
     /// <summary>
@@ -336,7 +346,7 @@ public class PlayerController : MonoBehaviour {
         //if(isPushAttackButton)
         //    anim.SetTrigger("Attack");
     }
-    
+
 
     /// <summary>
     /// UIManagerからアクションボタンが押された、離されたときに呼び出される
@@ -360,12 +370,13 @@ public class PlayerController : MonoBehaviour {
         if (other.tag == "DeadArea")
         {
             isPlay = false;
+            SoundManager.Instance.SoundSe(SoundManager.Instance.SE[3]);
             NormalGameManager.Instance.PlayerDead(NormalGameManager.Instance.PlayerNum);
             gameObject.SetActive(false);
         }
     }
 
-    
+
 }
 
 

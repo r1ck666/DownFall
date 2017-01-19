@@ -19,6 +19,10 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 		get { return playerNum; }
 	}
 
+	PhotonPlayer[] playerList;
+	int playerCount;
+	bool isPlay = false;
+
 	//================================
 	// GameRole関連
 	//================================
@@ -91,6 +95,8 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     			InitializePlayer();
 		}
 
+		SoundManager.Instance.SoundBGM(SoundManager.Instance.BGM[1]);
+
 		StartCoroutine(Ready());
 
 	}
@@ -118,8 +124,8 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
     /// プレイヤーの情報などを初期化します
     /// </summary>
 	void InitializePlayer() {
-		var playerList = PhotonNetwork.playerList;
-		var playerCount = PhotonNetwork.room.PlayerCount;
+		playerList = PhotonNetwork.playerList;
+		playerCount = PhotonNetwork.room.PlayerCount;
 
 		// PlayerListのソート
 		for (int i = 0; i < playerCount-1; i++) {
@@ -151,7 +157,8 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 		var camera = Camera.main.GetComponent<FollowCamera>();
 		camera.LookTarget = player.transform;
-		camera.HorizontalAngle = stage.StartPosition[playerNum, 4];
+		//操作方法を直さないとコメントアウトしてはいけない
+		//camera.HorizontalAngle = stage.StartPosition[playerNum, 4];
 		UIManager.Instance.SetPlayer();
 	}
 
@@ -174,7 +181,7 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	IEnumerator LimitTime () {
 		float count = limitTime;
-		while (true) {
+		while (isPlay) {
 			UIManager.Instance.SetLimitTime(count);
 			yield return null;
 			count -= Time.deltaTime;
@@ -185,11 +192,20 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	void GameStart () {
 		player.GetComponent<PlayerController>().IsPlay = true;
+		isPlay = true;
 		StartCoroutine(LimitTime());
 	}
 
 	void GameEnd () {
 		player.GetComponent<PlayerController>().IsPlay = false;
+		isPlay = false;
+		string winName = "";
+		for (int i=0; i < playerCount; i++) {
+			if (!isDead[i]) winName += playerList[i].NickName + "\n";
+			UIManager.Instance.GameEnd(winName);
+		}
+
+
 	}
 
 	public void PlayerDead (int playerNum) {
@@ -198,17 +214,22 @@ public class NormalGameManager : SingletonPhotonMonoBehaviour<NormalGameManager>
 
 	void ChangeView (int playerNum) {
 		var enemies = GameObject.FindGameObjectsWithTag("Player");
-		//Camera.main.GetComponent<FollowCamera>().LookTarget =
+		for (int i=0; i < playerCount; i++) {
+			if (enemies[i].activeSelf) {
+				Camera.main.GetComponent<FollowCamera>().LookTarget = enemies[i].transform;
+				break;
+			}
+		}
 	}
 
 	[PunRPC]
 	void SyncIsDead(int playerNum) {
 		isDead[playerNum] = true;
-		/*
-		foreach (bool isdead in isDead) {
-
+		int count = 0;
+		for (int i=0; i < playerCount; i++) {
+			if (!isDead[i]) count++;
 		}
-		*/
+		if (count == 1) GameEnd();
 	}
 
 
